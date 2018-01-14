@@ -49,7 +49,7 @@ int main(){
     string pathAndNamenovariancetune("../real_data/real_940_1298_tune_novariance_s05.txt");
     string pathAndNamenovariancefinal("../real_data/real_940_1298_final_novariance.txt");
     //double lambda=10;
-    VectorXd lambda1(9); lambda1<<100,5,2,1.5,1.3,1,0.8,0.5,0.1;//800,600,400,350,300,250,200,150,100,50,30,10,5,1,0.5,0.1,0.05;
+    VectorXd lambda1(9); lambda1<<100,5,2,1.5,1.3,1,0.8,0.5,0.1;
     double bestw_MSE_tune;
     double MSE;
     VectorXd final(10);
@@ -74,9 +74,6 @@ int main(){
     cout<<"mualpha.block(0,0,5,5)="<<endl<<mualpha.block(0,0,5,5)<<endl;
     
     
-    
-    //Omegais1=readgn_seq("../simulation/rep100_prop/simdata_100_100_0.8_o2_caseg6_s0501_2_5_0.1_5_Omega.txt",n);
-    //current mualpha and mubeta are best from novariance
     //next is L1
     
     vector<MatrixXd> bestOmegais;
@@ -91,12 +88,10 @@ int main(){
     string pathAndNameL1tune("../real_data/real_940_1298_tune_estvar_L1_s05.txt");//tune in last is real tune
     string pathAndNameL1final("../real_data/real_940_1298_final_estvar_L1.txt");
     
-    lambda1.resize(2);lambda1<<0.9,0.5; //final[1];//100,10;//5,1;10;5,1;//5,1,0.1 
-    VectorXd lambda2(2);lambda2<<500,300;//<<1;//1,0.1;//0.05; 
-    // lambda1.resize(1);lambda1<<1;
-//     VectorXd lambda2(1);lambda2<<300;
-    VectorXd lambda3(2);lambda3<<5,1;//5; //the same as lambda1
-    double c=0.02; //20;2000;0.02;0.1 seems working for TLP;    
+    lambda1.resize(2);lambda1<<0.9,0.5;  
+    VectorXd lambda2(2);lambda2<<500,300;
+    VectorXd lambda3(2);lambda3<<5,1;
+    double c=0.02;    
     int count=0;
     int bestparaindex;
     double bestw_tune_MSE;
@@ -234,8 +229,7 @@ int main(){
                 int outer_check=0;
                 if(i==0) outer_check=1;  
                 tstart=time(0);
-                method="v9 2lambda1 s05";//rule1 is with rule lam1 series, rule0 is using bestalpha and bestbeta.
-                //if(!(i==0&&j==0&&k==0)) rule2assignstarter2(2,i,j,k,0,C.mubeta1,C.mualpha1,C.u,C.u2,C.theta,C.theta2,C.Omegais1,C.Zis,C.Uis,L);//define starting value
+                method="v9 2lambda1 s05";
                 
                 re3=Cluster_p_inADMM_scale_struct_v9_4(c,C);
                 tend = time(0);
@@ -247,28 +241,6 @@ int main(){
                 int clu_beta=cal_cluster_no(C.mubeta1.transpose());
                 cout<<"clusters No. in beta is "<<clu_beta<<endl;
                 string namenow=lambdastr+"_"+lambda2str+"_"+lambda3str;
-                //rule2assignlayer2(2,i,j,k,0,lambda1.size(),lambda2.size(),lambda3.size(),C.mubeta1,C.mualpha1,C.u,C.u2,C.theta,C.theta2,C.Omegais1,C.Zis,C.Uis,L,namenow);//define L, rule2
-                //if (lambda1.size()>1&&j==0&&(i!=lambda1.size()-1)) {
-                //cout<<"i="<<i<<endl;
-                //cout<<"lam1u.size()="<<lam1u.size()<<endl;
-                //lam1alpha[i]=C.mualpha1;
-                //lam1beta[i]=C.mubeta1;
-                //lam1u[i]==C.u;
-                //lam1u2[i]==C.u2;
-                //lam1theta[i]==C.theta;
-                //lam1theta2[i]==C.theta2;
-                //lam1Omegais[i]=C.Omegais1;
-                //lam1Zis[i]==C.Zis;
-                //lam1Uis[i]==C.Uis;
-                //cout<<"Here C.u=\n"<<lam1u[i].block<2,2>(0,0)<<endl;
-                //cout<<"lam1u="<<endl;
-                //cout<<lam1u[i].block<2,2>(0,0)<<endl;
-                //}
-                //cout<<"lam1u="<<endl;
-                //cout<<lam1u[0].block<2,2>(0,0)<<endl;
-                
-                //initP=re3.P; // revise initP to zero, see if the same as v6
-                //cout<<"initP value="<<initP.Zis[0](1,1)<<endl;
                 VectorXd final(14);
                 final[0]=C.lambda1;
                 final[1]=C.lambda2;
