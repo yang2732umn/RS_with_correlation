@@ -1,4 +1,3 @@
-//this file want it to do 27 movie, 100 user, 0.8 missing, caseg6_s05012~caseg6_s05012 series of simulation for novariance, L1 and TLP
 
 #include "consider_covariance.h"
 
