@@ -1,25 +1,7 @@
 //this file want it to do 27 movie, 100 user, 0.8 missing, caseg6_s05012~caseg6_s05012 series of simulation for novariance, L1 and TLP
 
 #include "consider_covariance.h"
-//89,90
-//c3 has 12 clusters for both users and items, 75% quantile of abs Sigma offdiag is set to 0.5
-//c3 has 10 clusters for both users and items, Omega=Omega*2
-//d1 has rho^(i-j) for Sigma
-//d2 has variance 0.5
-//d7 has 3 groups of Omega 10,1,5
-//d8 5,0.5,2.5 times
-//e1 all use 0.9^(i-j)
-//f1 200 users, 50 movies, all use one Omega
-//f2 use two Omegas
-//f3 use scale /2 and /20
-//f4 use scale /20 and /40
-//f5 use scale /20 and /100, Omega1 and Omega2 have 446 nonzero to estimate in total(abs<10=0), but only 200*50*0.1=1000 obs, maybe too small
-//f6 use scale /20 and /100, with Omega1 and Omega2 more sparse
-//f7 considers more users, n=400
-//f8 uses submatrices of Sigma to generate data
-//f12 is train data ~ Omega, and tune test not indep from train, also normal, w_MSE for test
 
-//200_50_0.5 Omega2[abs(Omega2)<5]=0, Omega2[abs(Omega2)>20]=0
 int main(){
     //novariance first
     string trainname("../real_data/train940_1298_s05.txt"); 
@@ -256,8 +238,7 @@ int main(){
                 method="v9 2lambda1 s05";//rule1 is with rule lam1 series, rule0 is using bestalpha and bestbeta.
                 //if(!(i==0&&j==0&&k==0)) rule2assignstarter2(2,i,j,k,0,C.mubeta1,C.mualpha1,C.u,C.u2,C.theta,C.theta2,C.Omegais1,C.Zis,C.Uis,L);//define starting value
                 
-                re3=Cluster_p_inADMM_scale_struct_v9_4(c,C);//不同方法最后obj差很多，可能是因为L1问题它本身nonconvex，结果都是local解
-                //_v6算出来obj可以比_v5小，但是c还是不清楚怎么选  
+                re3=Cluster_p_inADMM_scale_struct_v9_4(c,C);
                 tend = time(0);
                 double timecount=difftime(tend, tstart);
                 cout << "It took " << timecount << " second(s)." << endl;  
