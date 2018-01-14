@@ -1,6 +1,5 @@
 #include "consider_covariance.h"
 double cal_TLP_offdiff_prop(double tau,const vector<MatrixXd>& Omegais){
-    //this calculates TLP  diff terms for Omega
     double temp5=0;
     int p=Omegais[1].rows();
     int n=Omegais.size();

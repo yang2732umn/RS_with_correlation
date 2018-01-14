@@ -1,6 +1,5 @@
 #include "consider_covariance.h"
 double cal_obj_Omega2_struct(const obj_Omega2_struct &A){
-    //use double off_diff
     int n=A.users.rows();
     int p=A.movie.rows();
     double obj=0,temp=0;
@@ -28,7 +27,6 @@ double cal_obj_Omega2_struct(const obj_Omega2_struct &A){
         }
     }
     obj=obj+A.lambda2*temp/A.c3;
-    //cout<<"l1 norm part of Omega is "<<temp<<endl;
     obj=obj+A.lambda3*A.off_diff/A.c6;
     obj=obj*100;
     return obj;

@@ -1,12 +1,5 @@
 #include "consider_covariance.h"
 VectorXd solve21_ama2_ptl_prop(int m,double gamma, int maxIter, double Tol,const VectorXd &y,const vector<vector<Vector2i>>&cstrfdi,const vector<vector<Vector2i>>&cstrsdi){
-    //not use acc, last element is special case
-    //use ama to solve min1/2||y-beta||^2+lambda\sum_{i<k}|beta_i-beta_k|  (equation 21)
-    //used only if there is constraint
-    //partially connected
-    //for each sample yi, it's a scalar
-    //Vector2i first coordinate is index of the other, second coordinate is number of constraint
-    //also solves the case of gamma=0 correctly
     int p=y.size();
     VectorXd u=VectorXd::Zero(p);
     VectorXd up;
@@ -19,9 +12,7 @@ VectorXd solve21_ama2_ptl_prop(int m,double gamma, int maxIter, double Tol,const
         nc+=cstrfdi[i].size();
     }
     double maxdiff,mu=1.0/p;//mu numerator must be 1.0 rather than 1, otherwise mu=0
-    //cout<<"mu="<<mu<<endl;
     VectorXd lambda_old=VectorXd::Zero(nc);
-    //lambda is in sequence of cstrfdi, 12, 13, 14, 23, 24, 34
     VectorXd lambda=lambda_old;
     int l,j;
     VectorXd delta=VectorXd::Zero(p);
@@ -70,21 +61,14 @@ VectorXd solve21_ama2_ptl_prop(int m,double gamma, int maxIter, double Tol,const
             }
             ++iter;
             maxdiff=(up-u).lpNorm<Infinity>();
-            //cout<<"objF="<<objF<<", objD="<<objD<<endl;
-            //cout<<"maxdiff of acc ama is "<<maxdiff<<endl;
             if(maxdiff<Tol) break;
         }
         if(maxdiff>Tol){
             cout<<"solve21 acc ama not converged, maxdiff is "<<maxdiff<<endl;
             cout<<"problem size is "<<p<<endl;
-            //cout<<"y="<<y.transpose()<<endl;
         }
     }
     
-    //if(maxdiff<=Tol) cout<<"solve21 took "<<iter<<" iterations to converge."<<endl;
-    //cout<<"iter is "<<iter<<endl;
-    //cout<<"solve21 acc ama final obj is "<<objF<<endl;
-    //cout<<"final lambda="<<lambda.transpose()<<endl;
     return u;
 }
 

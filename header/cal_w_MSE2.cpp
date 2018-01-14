@@ -1,7 +1,6 @@
 #include "consider_covariance.h"
 
 double cal_w_MSE2(const MatrixXd &solu, const rated_user_and_item & test,const vector<MatrixXd> & Omegais){
-    //only weight by diagonal of Omega
     double MSE=0;
     vector<MatrixXd> Sigmais(Omegais.size());
     for (int i=0; i<Omegais.size(); ++i) {

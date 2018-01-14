@@ -1,6 +1,5 @@
 #include "consider_covariance.h"
 VectorXd solve21_hock3(VectorXd &A,double lambda){
-    //faster than hock when K is large
     VectorXd trueA=A;
     int K=A.size();
     MatrixXi fusions=MatrixXi::Zero(K,K);
@@ -16,7 +15,6 @@ VectorXd solve21_hock3(VectorXd &A,double lambda){
     vector<pair<double,int>> V;
     VectorXi ordermats(K);
     VectorXi new_ordermats(K);
-    //main iteration
     for(int iter=1;iter<=K-1;++iter){
         V.resize(0);
         for(int i=0;i<K;++i){
@@ -47,7 +45,6 @@ VectorXd solve21_hock3(VectorXd &A,double lambda){
                 fusions(k,kp)=fusions(k,kp)||((ordermats[k]-1==ordermats[kp])&&(new_ordermats[k]<new_ordermats[kp]))||
 				((ordermats[k]+1==ordermats[kp])&&(new_ordermats[k]>new_ordermats[kp]))||
 				(abs(A[k]-A[kp])<1e-4);
-                //fusions(k,kp) = (fusions(k,kp)>0);
             }
         }
         for (int k=0; k<K; ++k) {

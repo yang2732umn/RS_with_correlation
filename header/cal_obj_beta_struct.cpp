@@ -1,6 +1,5 @@
 #include "consider_covariance.h"
 double cal_obj_beta_struct(const obj_beta_struct &A){//modified to l2 norm for TLP
-    //user should be train.user
     int n=A.users.rows();
     int p=A.movie.rows();
     MatrixXd solu=A.users*A.mualpha+A.mubeta*A.movie.transpose();

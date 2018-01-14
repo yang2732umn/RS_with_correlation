@@ -1,28 +1,8 @@
-//this file want it to do 27 movie, 100 user, 0.8 missing, caseg6_s03012~caseg6_s03012 series of simulation for novariance, L1 and TLP
 
 
 #include "consider_covariance.h"
-//89,90
-//c3 has 12 clusters for both users and items, 75% quantile of abs Sigma offdiag is set to 0.5
-//c3 has 10 clusters for both users and items, Omega=Omega*2
-//d1 has rho^(i-j) for Sigma
-//d2 has variance 0.5
-//d7 has 3 groups of Omega 10,1,5
-//d8 5,0.5,2.5 times
-//e1 all use 0.9^(i-j)
-//f1 200 users, 50 movies, all use one Omega
-//f2 use two Omegas
-//f3 use scale /2 and /20
-//f4 use scale /20 and /40
-//f5 use scale /20 and /100, Omega1 and Omega2 have 446 nonzero to estimate in total(abs<10=0), but only 200*50*0.1=1000 obs, maybe too small
-//f6 use scale /20 and /100, with Omega1 and Omega2 more sparse
-//f7 considers more users, n=400
-//f8 uses submatrices of Sigma to generate data
-//f12 is train data ~ Omega, and tune test not indep from train, also normal, w_MSE for test
 
-//200_50_0.5 Omega2[abs(Omega2)<5]=0, Omega2[abs(Omega2)>20]=0
 int main(){
-    //novariance first
     string trainname("../real_data/train940_1298_s03.txt"); 
     
     int position1=trainname.find("s0");
@@ -57,8 +37,6 @@ int main(){
     rated_user_and_item test=construct_user_item(A2);
     A2=readgn(tunename);//A is data
     rated_user_and_item tune=construct_user_item(A2);
-    //A1=readgn(traintunename);//A is data
-    //rated_user_and_item traintune=construct_user_item(A1);
     
     
     time_t tstart, tend,tstartall,tendall;
@@ -73,7 +51,6 @@ int main(){
     
     string pathAndNamenovariancetune("../real_data/real_940_1298_tune_novariance_s03.txt");
     string pathAndNamenovariancefinal("../real_data/real_940_1298_final_novariance.txt");
-    //double lambda=10;
     VectorXd lambda1(9); lambda1<<100,5,2,1.5,1.3,1,0.8,0.5,0.1;//800,600,400,350,300,250,200,150,100,50,30,10,5,1,0.5,0.1,0.05;
     double bestw_MSE_tune;
     double MSE;
@@ -88,8 +65,6 @@ int main(){
     
     tstartall = time(0);
     
-    //mualpha=readgn("../real_data/data_100k_s03_1_300_1_alpha.txt");
-    //mubeta=readgn("../real_data/data_100k_s03_1_300_1_beta.txt");
     
     mualpha=readgn("../real_data/data_100k_TLP_s03_0.8_300_0.1_0.0005_alpha_3.txt");
     mubeta=readgn("../real_data/data_100k_TLP_s03_0.8_300_0.1_0.0005_beta_3.txt");
@@ -101,9 +76,6 @@ int main(){
     
     
     
-    //Omegais1=readgn_seq("../simulation/rep100_prop/simdata_100_100_0.8_o2_caseg6_s0301_2_5_0.1_5_Omega.txt",n);
-    //current mualpha and mubeta are best from novariance
-    //next is L1
     
     vector<MatrixXd> bestOmegais;
     
@@ -162,10 +134,8 @@ int main(){
     C.Omegais1=readgn_seq("Omegais_1_100_1_start.txt",n);
     cout<<"Reading finished"<<endl;
     
-    //vector<MatrixXd> Omegais1(n);//=readgn_seq(Omeganame,n);
     #pragma omp parallel for
     for (int i=0; i<n; ++i) {
-        //C.Omegais1[i]=MatrixXd::Identity(p,p);
         C.Zis[i]=C.Omegais1[i];
         C.Uis[i]=MatrixXd::Zero(p,p);
     }
@@ -176,31 +146,12 @@ int main(){
     C.theta2=C.u2;
     
     rec.resize(lambda1.size()*lambda2.size()*lambda3.size(),5);
-    //vector<MatrixXd> lam1beta(lambda1.size()-1),lam1alpha(lambda1.size()-1),lam1u(lambda1.size()-1),lam1u2(lambda1.size()-1),lam1theta(lambda1.size()-1),lam1theta2(lambda1.size()-1);
-    //vector<vector<MatrixXd>> lam1Omegais(lambda1.size()-1),lam1Zis(lambda1.size()-1),lam1Uis(lambda1.size()-1);
     cout<<"here"<<endl;
     tstartall = time(0);
     for (int i=0; i<lambda1.size(); ++i) {
         C.lambda1=lambda1[i];
         for (int j=0; j<lambda2.size(); ++j){
             C.lambda2=lambda2[j];
-            //if (lambda1.size()>1&&i>0&&j==0) {
-            //C.mubeta1=lam1beta[i-1];
-            //C.mualpha1=lam1alpha[i-1];
-            //C.Omegais1=lam1Omegais[i-1];
-            //C.u=lam1u[i-1];
-            //C.u2=lam1u2[i-1];
-            //C.theta=lam1theta[i-1];
-            //C.theta2=lam1theta2[i-1];
-            //C.Zis=lam1Zis[i-1];
-            //C.Uis=lam1Uis[i-1];
-            //cout<<"lam1beta=\n"<<lam1beta[i-1].block<2,2>(0,0)<<endl;
-            //cout<<"lam1alpha=\n"<<lam1alpha[i-1].block<2,2>(0,0)<<endl;
-            //cout<<"lam1u="<<endl;
-            //cout<<lam1u[i-1].block<2,2>(0,0)<<endl;
-            //cout<<"lam1Zis[0]="<<endl;
-            //cout<<lam1Zis[i-1][0].block<2,2>(0,0)<<endl;
-            //}
             for (int k=0; k<1; ++k) {//lambda3.size()
                 C.lambda3=C.lambda1;//lambda3[k];can skip this 2*, not too much difference
                 size_t found=dname2.find(".txt");
@@ -258,10 +209,8 @@ int main(){
                 if(i==0) outer_check=1;
                 tstart=time(0);
                 method="v9 2lambda1";//rule1 is with rule lam1 series, rule0 is using bestalpha and bestbeta.
-                //if(!(i==0&&j==0&&k==0)) rule2assignstarter2(2,i,j,k,0,C.mubeta1,C.mualpha1,C.u,C.u2,C.theta,C.theta2,C.Omegais1,C.Zis,C.Uis,L);//define starting value
                 
                 re3=Cluster_p_inADMM_scale_struct_v9_3(c,C);//不同方法最后obj差很多，可能是因为L1问题它本身nonconvex，结果都是local解
-                //_v6算出来obj可以比_v5小，但是c还是不清楚怎么选  
                 tend = time(0);
                 double timecount=difftime(tend, tstart);
                 cout << "It took " << timecount << " second(s)." << endl;
@@ -271,28 +220,7 @@ int main(){
                 int clu_beta=cal_cluster_no(C.mubeta1.transpose());
                 cout<<"clusters No. in beta is "<<clu_beta<<endl;
                 string namenow=lambdastr+"_"+lambda2str+"_"+lambda3str;
-                //rule2assignlayer2(2,i,j,k,0,lambda1.size(),lambda2.size(),lambda3.size(),C.mubeta1,C.mualpha1,C.u,C.u2,C.theta,C.theta2,C.Omegais1,C.Zis,C.Uis,L,namenow);//define L, rule2
-                //if (lambda1.size()>1&&j==0&&(i!=lambda1.size()-1)) {
-                //cout<<"i="<<i<<endl;
-                //cout<<"lam1u.size()="<<lam1u.size()<<endl;
-                //lam1alpha[i]=C.mualpha1;
-                //lam1beta[i]=C.mubeta1;
-                //lam1u[i]==C.u;
-                //lam1u2[i]==C.u2;
-                //lam1theta[i]==C.theta;
-                //lam1theta2[i]==C.theta2;
-                //lam1Omegais[i]=C.Omegais1;
-                //lam1Zis[i]==C.Zis;
-                //lam1Uis[i]==C.Uis;
-                //cout<<"Here C.u=\n"<<lam1u[i].block<2,2>(0,0)<<endl;
-                //cout<<"lam1u="<<endl;
-                //cout<<lam1u[i].block<2,2>(0,0)<<endl;
-                //}
-                //cout<<"lam1u="<<endl;
-                //cout<<lam1u[0].block<2,2>(0,0)<<endl;
                 
-                //initP=re3.P; // revise initP to zero, see if the same as v6
-                //cout<<"initP value="<<initP.Zis[0](1,1)<<endl;
                 VectorXd final(13);
                 final[0]=C.lambda1;
                 final[1]=C.lambda2;
@@ -350,15 +278,6 @@ int main(){
                 C.mubeta1=mubeta;
                 C.Omegais1=readgn_seq("Omegais_1_100_1_start.txt",n);
     			cout<<"Reading finished"<<endl;  
-                //C.mualpha1=bestalpha;
-                //C.mubeta1=bestbeta;//use the current best alpha and beta for warm start               
-                //do not do following, use previous as start
-                //C.mualpha1=mualpha;
-                //C.mubeta1=mubeta;
-                //C.Omegais1=Omegais1;
-                //C.Omegais1=bestOmegais;
-                //C.Omegais1=Omegais1;
-                //C.Omegais1=readgn_seq(Omeganames[bestparaindex],n);//use previous Omega
             }
         }
     }
@@ -369,13 +288,10 @@ int main(){
     C.lambda3=rec(bestparaindex,2);
     get_MatrixtoData(bestalpha, alphanames[bestparaindex]);
     get_MatrixtoData(bestbeta, betanames[bestparaindex]);
-    //get_matricestoData(bestOmegais,Omeganames[bestparaindex]);
     get_MatrixtoData(bestu,unames[bestparaindex]);
     get_MatrixtoData(bestu2,u2names[bestparaindex]);
     get_MatrixtoData(besttheta,thetanames[bestparaindex]);
     get_MatrixtoData(besttheta2,theta2names[bestparaindex]);
-    //get_matricestoData(bestUis,Unames[bestparaindex]);
-    //get_matricestoData(bestZis,Znames[bestparaindex]); 
     
     final.resize(14);
     final[0]=seedint;
@@ -442,11 +358,6 @@ int main(){
     T.theta=readgn("../real_data/data_100k_TLP_s03_0.8_300_0.1_0.0005_theta_3.txt");
     T.theta2=readgn("../real_data/data_100k_TLP_s03_0.8_300_0.1_0.0005_theta2_3.txt");
     T.Omegais1=readgn_seq("../real_data/data_100k_TLP_s03_0.8_300_0.1_0.0005_Omega_3.txt",n);//("Omegais_0.8_200_0.8_start_s03.txt",n);
-// 	T.u=readgn("../real_data/data_100k_s03_1_300_1_u.txt");
-// 	T.u2=readgn("../real_data/data_100k_s03_1_300_1_u2.txt");
-// 	T.theta=readgn("../real_data/data_100k_s03_1_300_1_theta.txt");
-// 	T.theta2=readgn("../real_data/data_100k_s03_1_300_1_theta2.txt");
-// 	T.Omegais1=readgn_seq("../real_data/data_100k_s03_1_300_1_Omega.txt",n);     
 	
     cout<<"Reading finished"<<endl;
     T.Zis.resize(n);
@@ -457,8 +368,6 @@ int main(){
         T.Uis[i]=MatrixXd::Zero(p,p);
     }
     cout<<"here"<<endl;
-    //T.Zis=bestZis;
-    //T.Uis=bestUis;
     bestsolu=users*T.mualpha1+T.mubeta1*movie.transpose();
     double wMSE_L1=cal_MSE(bestsolu,test);
     cout<<"current L1 MSE on test= "<<wMSE_L1<<endl;
@@ -635,13 +544,6 @@ int main(){
      final[10]=difftime(tendall, tstartall);
      final[11]=c;
      get_sVectortoData(method,final,pathAndNameTLPfinal); 
-     // get_MatrixtoData(bestalpha, alphanames[bestparaindex]);
-//      get_MatrixtoData(bestbeta, betanames[bestparaindex]);
-//      get_MatrixtoData(bestu,unames[bestparaindex]);
-//      get_MatrixtoData(bestu2,u2names[bestparaindex]);
-//      get_MatrixtoData(besttheta,thetanames[bestparaindex]);
-//      get_MatrixtoData(besttheta2,theta2names[bestparaindex]); 
-//      get_matricestoData(bestOmegais,Omeganames[bestparaindex]);
     /*if(remove(trainname.c_str())!=0||remove(tunename.c_str())!=0||remove(testname.c_str())!=0||remove(traintunename.c_str())!=0
      ||remove(name3.c_str())!=0||remove(name4.c_str())!=0||remove("alphasim_100_100_0.8_o2_caseg6_s0301_2.txt")!=0||remove("betasim_100_100_0.8_o2_caseg6_s0301_2.txt")!=0
      ||remove(alphatruename.c_str())!=0||remove(betatruename.c_str())!=0||remove("Sigmatune100_100_0.8_o2_caseg6_s0301_2.txt")!=0

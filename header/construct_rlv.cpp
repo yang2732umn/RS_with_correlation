@@ -43,7 +43,6 @@ vector<Omega_1rlv> construct_rlv(int p,const vector<rated_user> &user){//rlv is 
             rlv[good]=rlv1;
         }
     }
-    //cout<<"good="<<good<<endl;
     vector<Omega_1rlv> rlv2;
     for (good=0; good<rlv.size(); ++good) {
         if (rlv[good].userno[0]!=-1) {

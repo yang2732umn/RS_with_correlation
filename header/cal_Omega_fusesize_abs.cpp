@@ -1,6 +1,5 @@
 #include "consider_covariance.h"
 pairdouble cal_Omega_fusesize_abs(const vector<MatrixXd> &Omegais,const vector<vector<vector<Vector2i>>> &cstrfdi_diag,const vector<vector<vector<Vector2i>>> &cstrsdi_diag, const vector<vector<vector<Vector2i>>> &cstrfdi_offdiag,const vector<vector<vector<Vector2i>>> &cstrsdi_offdiag,const vector<int> &judge_diag,const vector<int> &judge_offdiag,const vector<vector<int>> &Osize,const  vector<Omega_1rlv_simple>& rlv,const vector<rated_1itemmore> &itemmore, const vector<int> &itemmore_idle,const vector<int> &rlv_idle){
-    //both fuse and size on Omega abs
     pairdouble M;
     double Omegafuse=0,Omegasize=0;
     int n=Omegais.size();

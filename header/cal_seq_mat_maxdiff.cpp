@@ -1,6 +1,5 @@
 #include "consider_covariance.h"
 double cal_seq_mat_maxdiff(const vector<MatrixXd> matseq1,const vector<MatrixXd> matseq2){
-    //calculates the maxmimum difference between two seqs of matrices
     double diff=0;
     int n=matseq1.size();//two seqs should have the same number of matrices
     VectorXd alldiff(n);

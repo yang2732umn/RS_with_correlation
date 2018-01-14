@@ -2,7 +2,6 @@
 #include "consider_covariance.h"
 
 int main(){
-    //novariance first
     string trainname("../real_data/train940_1298_s05.txt"); 
     
     int position1=trainname.find("s0");
@@ -33,8 +32,6 @@ int main(){
     rated_user_and_item test=construct_user_item(A2);
     A2=readgn(tunename);//A is data
     rated_user_and_item tune=construct_user_item(A2);
-    //A1=readgn(traintunename);//A is data
-    //rated_user_and_item traintune=construct_user_item(A1);
     
     
     time_t tstart, tend,tstartall,tendall;
@@ -48,7 +45,6 @@ int main(){
     
     string pathAndNamenovariancetune("../real_data/real_940_1298_tune_novariance_s05.txt");
     string pathAndNamenovariancefinal("../real_data/real_940_1298_final_novariance.txt");
-    //double lambda=10;
     VectorXd lambda1(9); lambda1<<100,5,2,1.5,1.3,1,0.8,0.5,0.1;
     double bestw_MSE_tune;
     double MSE;
@@ -74,7 +70,6 @@ int main(){
     cout<<"mualpha.block(0,0,5,5)="<<endl<<mualpha.block(0,0,5,5)<<endl;
     
     
-    //next is L1
     
     vector<MatrixXd> bestOmegais;
     
@@ -134,10 +129,8 @@ int main(){
     C.Omegais1=readgn_seq(Omegastart,n);
     cout<<"Omegastart is "<<Omegastart<<". Reading finished."<<endl;
     
-    //vector<MatrixXd> Omegais1(n);//=readgn_seq(Omeganame,n);
     #pragma omp parallel for
     for (int i=0; i<n; ++i) {
-        //C.Omegais1[i]=MatrixXd::Identity(p,p);
         C.Zis[i]=C.Omegais1[i];
         C.Uis[i]=MatrixXd::Zero(p,p);
     }
@@ -148,31 +141,12 @@ int main(){
     C.theta2=C.u2;
     
     rec.resize(lambda1.size()*lambda2.size()*lambda3.size(),5);
-    //vector<MatrixXd> lam1beta(lambda1.size()-1),lam1alpha(lambda1.size()- 1),lam1u(lambda1.size()-1),lam1u2(lambda1.size()-1),lam1theta(lambda1.size()-1),lam1theta2(lambda1.size()-1);
-    //vector<vector<MatrixXd>> lam1Omegais(lambda1.size()-1),lam1Zis(lambda1.size()-1),lam1Uis(lambda1.size()-1);
     cout<<"here"<<endl;
     tstartall = time(0);
     for (int i=0; i<lambda1.size(); ++i) {
         C.lambda1=lambda1[i];
         for (int j=0; j<lambda2.size(); ++j){
             C.lambda2=lambda2[j];
-            //if (lambda1.size()>1&&i>0&&j==0) {
-            //C.mubeta1=lam1beta[i-1];
-            //C.mualpha1=lam1alpha[i-1];
-            //C.Omegais1=lam1Omegais[i-1];
-            //C.u=lam1u[i-1];
-            //C.u2=lam1u2[i-1];
-            //C.theta=lam1theta[i-1];
-            //C.theta2=lam1theta2[i-1];
-            //C.Zis=lam1Zis[i-1];
-            //C.Uis=lam1Uis[i-1];
-            //cout<<"lam1beta=\n"<<lam1beta[i-1].block<2,2>(0,0)<<endl;
-            //cout<<"lam1alpha=\n"<<lam1alpha[i-1].block<2,2>(0,0)<<endl;
-            //cout<<"lam1u="<<endl;
-            //cout<<lam1u[i-1].block<2,2>(0,0)<<endl;
-            //cout<<"lam1Zis[0]="<<endl;
-            //cout<<lam1Zis[i-1][0].block<2,2>(0,0)<<endl;
-            //}
             for (int k=0; k<1; ++k) {//lambda3.size()
                 C.lambda3=C.lambda1;//lambda3[k];can skip this 2*, not too much difference
                 size_t found=dname2.find(".txt");
@@ -294,15 +268,6 @@ int main(){
                 }
                 rec(count,0)=C.lambda1;rec(count,1)=C.lambda2;rec(count,2)=C.lambda3; rec(count,3)=clu_alpha;rec(count,4)=clu_beta;
                 ++count; 
-                //C.mualpha1=bestalpha;
-                //C.mubeta1=bestbeta;//use the current best alpha and beta for warm start               
-                //do not do following, use previous as start
-                //C.mualpha1=mualpha;
-                //C.mubeta1=mubeta;
-                //C.Omegais1=Omegais1;
-                //C.Omegais1=bestOmegais;
-                //C.Omegais1=Omegais1;
-                //C.Omegais1=readgn_seq(Omeganames[bestparaindex],n);//use previous Omega
             }
         }
     }
@@ -313,13 +278,10 @@ int main(){
     C.lambda3=rec(bestparaindex,2);
     get_MatrixtoData(bestalpha, alphanames[bestparaindex]);
     get_MatrixtoData(bestbeta, betanames[bestparaindex]);
-    //get_matricestoData(bestOmegais,Omeganames[bestparaindex]);
     get_MatrixtoData(bestu,unames[bestparaindex]);
     get_MatrixtoData(bestu2,u2names[bestparaindex]);
     get_MatrixtoData(besttheta,thetanames[bestparaindex]);
     get_MatrixtoData(besttheta2,theta2names[bestparaindex]);
-    //get_matricestoData(bestUis,Unames[bestparaindex]);
-    //get_matricestoData(bestZis,Znames[bestparaindex]);   
     
     final.resize(14);
     final[0]=seedint;

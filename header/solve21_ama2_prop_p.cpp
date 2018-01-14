@@ -1,11 +1,5 @@
 #include "consider_covariance.h"
 VectorXd solve21_ama2_prop_p(const VectorXd &y,int m,double gamma, int maxIter, double Tol){
-// use ADMM solve min1/2||y-beta||^2+lambda||D beta||_1  (equation 21)
-//this is for propagation version v4_3
-//m is the number of u_i's whose y_i is 0.
-//y is real y + last idle value(may not be 0)
-//ama2 is similar to acc_ama, but just without acceleration
-//all connected
     int p=y.size();
     VectorXd u=VectorXd::Zero(p);
     tri trip;
@@ -19,12 +13,10 @@ VectorXd solve21_ama2_prop_p(const VectorXd &y,int m,double gamma, int maxIter, 
     int iter=0;
     
     double maxdiff,mu=1.0/(p+m-1);//mu numerator must be 1.0 rather than 1, otherwise mu=0
-    //cout<<"mu="<<mu<<endl;
     VectorXd lambda_old=VectorXd::Zero(p*(p-1)/2);  
     VectorXd lambda=lambda_old;
     int l,i,j;
     VectorXi fdi,sdi;
-    //double objF,objD;
     VectorXd delta=VectorXd::Zero(p);
     VectorXd up;
     vector<VectorXi> fdis(p-1),sdis(p-1);
@@ -46,13 +38,6 @@ VectorXd solve21_ama2_prop_p(const VectorXd &y,int m,double gamma, int maxIter, 
         trip.first(l)=i;trip.second(l)=j;
     }
     
-//    l=0;
-//    for (int i=0; i<p-1; ++i) {
-//        for (int j=i+1; j<p; ++j) {
-//            trip.first(l)=i;trip.second(l)=j;
-//            ++l;
-//        }
-//    }
     
     while (iter<maxIter) {
         lambda_old=lambda;
@@ -87,7 +72,6 @@ VectorXd solve21_ama2_prop_p(const VectorXd &y,int m,double gamma, int maxIter, 
         /*l=0;
         for(int t1=0;t1<p-1;++t1){
             for(int t2=t1+1;t2<p;++t2){
-                //l=t1*(p-(t1+1)*0.5)+t2-t1-1;
                 lambda[l]=lambda[l]-mu*(u[t1]-u[t2]);
                 if (t2!=p-1) lambda[l]=fmin(fmax(lambda[l],-gamma),gamma);
                 else lambda[l]=fmin(fmax(lambda[l],-m*gamma),m*gamma);
@@ -97,18 +81,11 @@ VectorXd solve21_ama2_prop_p(const VectorXd &y,int m,double gamma, int maxIter, 
         
         ++iter;
         maxdiff=(up-u).lpNorm<Infinity>();
-        //cout<<"objF="<<objF<<", objD="<<objD<<endl;
-        //cout<<"maxdiff of acc ama is "<<maxdiff<<endl;
         if(maxdiff<Tol) break;
     }
     if(maxdiff>Tol){
         cout<<"solve21 ama2 not converged, maxdiff is "<<maxdiff<<", problem size is "<<p<<endl;
-        //cout<<"y="<<y.transpose()<<endl;  
     }
-    //if(maxdiff<=Tol) cout<<"solve21 took "<<iter<<" iterations to converge."<<endl;
-    //cout<<"iter is "<<iter<<endl;
-    //cout<<"solve21 acc ama final obj is "<<objF<<endl;
-    //cout<<"final lambda="<<lambda.transpose()<<endl;
     return u;  
 }
 

@@ -1,8 +1,6 @@
 #include "consider_covariance.h"
 double cal_TLP_obj_prop_size_wi(int n,int c1,int c3,int c4,int c5,int c6,double lambda1,double lambda2,double lambda3,double tau,double alphafuse_tau,double betafuse_tau,double Omegasize_tau,
 	double Omegafuse_tau, const VectorXd &log_det,const vector<MatrixXd>& Sis,const vector<rated_user> &user,const vector<MatrixXd>& Omegais){//with info
-    //user should be train.user
-    //also with size contraint on Omega
     double obj=0,temp3=0;
     int i;
     MatrixXd Omegai;

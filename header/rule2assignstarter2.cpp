@@ -1,8 +1,6 @@
 #include "consider_covariance.h"
 
-//designed for lambda1!=lambda3, also works for lambda1==lambda3
 void rule2assignstarter2(int nlayer, int i,int j,int k,int l,MatrixXd &betastart,MatrixXd &alphastart, MatrixXd& ustart,MatrixXd& u2start, MatrixXd& thetastart,MatrixXd& theta2start, vector<MatrixXd>& Omegaisstart, vector<MatrixXd>& Zisstart,vector<MatrixXd>& Uisstart,const layers2 &L){
-    //if i,j,k,l, nlayer=3; if i,j,k, nlayer=2
     if (nlayer==2) {
         if (i>0&&j==0&&k==0) {
             betastart=L.mubeta[0];

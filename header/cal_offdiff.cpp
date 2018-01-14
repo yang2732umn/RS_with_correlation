@@ -1,6 +1,5 @@
 #include "consider_covariance.h"
 double cal_offdiff(const vector<MatrixXd>& Omegais,const vector<Omega_1rlv>& rlv,const vector<rated_1itemmore>& itemmore)
-//this calculates diff terms for Omega
 {
     
     double temp5=0;

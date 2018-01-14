@@ -15,8 +15,6 @@ double cal_likelihood_prop(const Cluster_mnl_p_ADMM_scale_para &C){//negative lo
             }
             MatrixXd Si=resid*resid.transpose();
             MatrixXd Omegai=matrix_rowcolsub(C.Omegais1[i],C.x.user[i].item);
-            //cout<<"On tune set, resid for user "<<i<<" is "<<resid.transpose()<<endl;
-            //cout<<"Omegai="<<endl<<Omegai<<endl;
             if(i==75){
                 cout<<"C.x.user[75].item is "<<endl;
                 stl_vec_cout(C.x.user[75].item);
@@ -36,7 +34,6 @@ double cal_likelihood_prop(const Cluster_mnl_p_ADMM_scale_para &C){//negative lo
             }
             temp3=temp3+(Si*Omegai).trace()-log((Omegai).determinant());
         }
-        //can use temp3=temps/C.x.user.size(); to let the quantity has a smaller scale
     }
     return temp3;
     
@@ -59,8 +56,6 @@ double cal_likelihood_prop(const MatrixXd &users,const MatrixXd &movie, const ra
             }
             MatrixXd Si=resid*resid.transpose();
             MatrixXd Omegai=matrix_rowcolsub(Omegais[i],data.user[i].item);
-            //cout<<"On tune set, resid for user "<<i<<" is "<<resid.transpose()<<endl;
-            //cout<<"Omegai="<<endl<<Omegai<<endl;
             if(i==75){
                 cout<<"data.user[75].item is "<<endl;
                 stl_vec_cout(data.user[75].item);
@@ -80,7 +75,6 @@ double cal_likelihood_prop(const MatrixXd &users,const MatrixXd &movie, const ra
             }
             temp3=temp3+(Si*Omegai).trace()-log((Omegai).determinant());
         }
-        //can use temp3=temps/data.user.size(); to let the quantity has a smaller scale
     }
     return temp3;
 }

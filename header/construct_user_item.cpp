@@ -1,7 +1,5 @@
 #include "consider_covariance.h"
 rated_user_and_item construct_user_item(const MatrixXi &data){
-    //this function gives the user item observed pairs from the ...*3 data matrix
-    //user and item are all ordered
     VectorXi datacol1=data.col(0);
     VectorXi datacol2=data.col(1);
     VectorXi uniqueuser=unique_veci(datacol1);
@@ -13,7 +11,6 @@ rated_user_and_item construct_user_item(const MatrixXi &data){
         rated_user user_crt;
         int k=0;
         user_crt.userno=uniqueuser(i);
-        //data should be the first user, then second user, then third....
         while (j<data.rows()&&data(j, 0)==user_crt.userno) {
             (user_crt.item).push_back(data(j, 1));
             k=k+1;
@@ -47,10 +44,7 @@ rated_user_and_item construct_user_item(const MatrixXi &data){
 
 
 
-//reload of the above function for double matrix
 rated_user_and_item construct_user_item(const MatrixXd &data){
-    //this function gives the user item observed pairs from the ...*3 data matrix
-    //user and item are all ordered
     VectorXi datacol1=data.col(0).cast<int>();
     VectorXi datacol2=data.col(1).cast<int>();
     VectorXi uniqueuser=unique_veci(datacol1);
@@ -62,7 +56,6 @@ rated_user_and_item construct_user_item(const MatrixXd &data){
         rated_user user_crt;
         int k=0;
         user_crt.userno=uniqueuser(i);
-        //data should be the first user, then second user, then third....
         while (j<data.rows()&&data(j, 0)==user_crt.userno) {
             (user_crt.item).push_back(data(j, 1));
             k=k+1;

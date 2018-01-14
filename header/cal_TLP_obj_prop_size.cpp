@@ -1,7 +1,5 @@
 #include "consider_covariance.h"
 double cal_TLP_obj_prop_size(const vector<MatrixXd>& Sis,const TLP_obj_struct &A){
-    //user should be train.user
-    //also with size contraint on Omega
     int n=(*A.mubeta).rows();
     int p=(*A.mualpha).cols();
     int mdim=(*A.mubeta).cols();
@@ -40,23 +38,9 @@ double cal_TLP_obj_prop_size(const vector<MatrixXd>& Sis,const TLP_obj_struct &A
 			cout<<Omegai<<endl;
 		}
 		// double deter=1;
-//             SelfAdjointEigenSolver<MatrixXd> es(Omegai,false);
-//             VectorXd eigenv=es.eigenvalues();
-//             
-//             for (int j=0; j<eigenv.size(); ++j) {
-//                 deter*=eigenv[j];
-//             }
-//             if (deter<0) {
-//                 cout<<"Omega "<<i<<" negative determined!"<<endl;
-//                 cout<<"Omegai="<<endl<<Omegai<<endl;
-//             }
-//             if (deter==0) {
-//                 cout<<"Omega "<<i<<" undetermined!"<<endl;
-//             }
 		temp3+=(Sis[i]*Omegai).trace()-(A.log_det)[i];
 	}
 
-    //cout<<"liki part is "<<temp3*0.5/A.c1<<" ,alpha part is "<<temp2*A.lambda1/(2*A.c5*A.tau)<<" ,beta part is "<<temp1*A.lambda1/(2*A.c4*A.tau)<<", Omega part is "<<A.off_diff*A.lambda3/(A.c6*A.tau)<<endl;
     obj=temp1*A.lambda1/(2*A.c4*A.tau)+temp2*A.lambda1/(2*A.c5*A.tau)+temp3*0.5/A.c1+A.off_diff*A.lambda3/(2*A.c6*A.tau)+temp4*A.lambda2/(A.c3*A.tau);
     obj=obj*100;
     return obj; 

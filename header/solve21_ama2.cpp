@@ -1,12 +1,9 @@
 #include "consider_covariance.h"
 VectorXd solve21_ama2(const VectorXd &y,double gamma, int maxIter, double Tol)// use ADMM solve min1/2||y-beta||^2+lambda||D beta||_1  (equation 21)
-//ama2 is similar to acc_ama, but just without acceleration
-//all connected
 {
     int iter=0;
     int p=y.size();
     double maxdiff,mu=1.0/p;//mu numerator must be 1.0 rather than 1, otherwise mu=0
-    //cout<<"mu="<<mu<<endl;
     VectorXd lambda_old=VectorXd::Zero(p*(p-1)/2);
     VectorXd lambda=lambda_old;
     int l,j;
@@ -52,8 +49,6 @@ VectorXd solve21_ama2(const VectorXd &y,double gamma, int maxIter, double Tol)//
         }
         ++iter;
         maxdiff=(up-u).lpNorm<Infinity>();
-        //cout<<"objF="<<objF<<", objD="<<objD<<endl;
-        //cout<<"maxdiff of acc ama is "<<maxdiff<<endl;
         if(maxdiff<Tol) break;
     }
     if(maxdiff>Tol){
@@ -61,9 +56,5 @@ VectorXd solve21_ama2(const VectorXd &y,double gamma, int maxIter, double Tol)//
         cout<<"problem size is "<<p<<endl;
         cout<<"y="<<y.transpose()<<endl;
     }
-    //if(maxdiff<=Tol) cout<<"solve21 took "<<iter<<" iterations to converge."<<endl;
-    //cout<<"iter is "<<iter<<endl;
-    //cout<<"solve21 acc ama final obj is "<<objF<<endl;
-    //cout<<"final lambda="<<lambda.transpose()<<endl;
     return u;
 }

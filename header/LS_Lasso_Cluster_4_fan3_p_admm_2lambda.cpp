@@ -1,12 +1,9 @@
 #include "consider_covariance.h"
 result LS_Lasso_Cluster_4_fan3_p_admm_2lambda(rated_user_and_item x, MatrixXd movie, MatrixXd users, MatrixXd mualpha1, MatrixXd mubeta1, double lambda1, double lambda2, double rho,double Tol, int maxIter){
-    //the same result as Cluster_mnl_p_ADMM function comment out Omega update part
-    //lambda1 for beta, and lambda2 for alpha
     int n=users.rows();
     int p=movie.rows();
     int udim=users.cols();
     int mdim=movie.cols();
-    //cout<<"done here "<<endl;
     
     MatrixXd mualpha2=mualpha1;
     MatrixXd mubeta2=mubeta1;
@@ -20,7 +17,6 @@ result LS_Lasso_Cluster_4_fan3_p_admm_2lambda(rated_user_and_item x, MatrixXd mo
     VectorXi fdi(1),sdi(1);
     VectorXd temp,atemp(2),a(2),btemp(2),b(2);
     MatrixXd mtemp(n,n);
-    //cout<<"done here "<<endl;
     double obj1,obj2,maxalpha,maxbeta,maxu,maxtheta;
     VectorXd change, change2;
     double ttt;
@@ -29,9 +25,7 @@ result LS_Lasso_Cluster_4_fan3_p_admm_2lambda(rated_user_and_item x, MatrixXd mo
     obj1=cal_obj2_2lambda(mualpha1, mubeta1, lambda1,lambda2, x.user, movie, users);
     cout<<"obj="<<obj1<<endl;
     while (maxdiff>2*Tol&iter<maxIter) {
-        //#pragma omp parallel private(j,l,fdi,sdi,temp,atemp,a,btemp,b,mtemp)
         {
-            //update mubeta
             int beta_iter=0;
             *theta=MatrixXd::Zero(mubeta2.cols(),(n*(n-1)/2));
             *u=*theta;
@@ -43,16 +37,12 @@ result LS_Lasso_Cluster_4_fan3_p_admm_2lambda(rated_user_and_item x, MatrixXd mo
                     temp=rho*(mubeta1_inner.transpose()).rowwise().sum();
                     atemp=rho*mubeta1_inner.row(i);
                     temp=temp-atemp;
-                    //cout<<"done here "<<endl;
                     if(i<n-1){
                         fdi=VectorXi::LinSpaced(n-i-1,i*(n-(i+1)*0.5),i*(n-(i+1)*0.5)+n-i-2);
-                        //cout<<"fdi="<<(fdi).transpose()<<endl;
                         mtemp.resize(mdim,fdi.size());
                         for (j=0; j<fdi.size(); ++j) {
                             mtemp.col(j)=(*theta).col(fdi[j])-(*u).col(fdi[j]);
                         }
-                        //cout<<"temp.size()="<<temp.size()<<endl;
-                        //cout<<"mtemp size="<<mtemp.rows()<<" "<<mtemp.cols()<<endl;
                         temp=temp+rho*mtemp.rowwise().sum();
                     }
                     
@@ -72,9 +62,7 @@ result LS_Lasso_Cluster_4_fan3_p_admm_2lambda(rated_user_and_item x, MatrixXd mo
                     mtemp.resize(mdim,mdim);
                     mtemp=movieuse.transpose()*movieuse;
                     mtemp=mtemp+rho*(n-1)*MatrixXd::Identity(mdim,mdim);
-                    //cout<<"mtemp inverse is "<<mtemp.inverse()<<endl;
                     mubeta2.row(i)=mtemp.inverse()*temp;
-                    //cout<<"beta "<<i<<" done"<<endl;
                 }
                 maxbeta=absm(mubeta2-mubeta1_inner).maxCoeff();
                 
@@ -116,14 +104,12 @@ result LS_Lasso_Cluster_4_fan3_p_admm_2lambda(rated_user_and_item x, MatrixXd mo
                 obj2=cal_obj2_2lambda(mualpha1, mubeta2, lambda1,lambda2, x.user, movie, users);
                 cout<<"obj="<<obj2<<endl;
                 if (obj1-obj2<0.001) {
-                    //break;
                 }
                 else{
                     obj1=obj2;
                 }
             }
             
-            //update mualpha
             int alpha_iter=0;
             *theta=MatrixXd::Zero(mualpha2.rows(),p*(p-1)/2);
             *u=*theta;
@@ -195,14 +181,12 @@ result LS_Lasso_Cluster_4_fan3_p_admm_2lambda(rated_user_and_item x, MatrixXd mo
                         btemp=mualpha2.col(i)-mualpha2.col(j)-(*theta).col(l);
                         change2[l]=btemp.lpNorm<Infinity>();
                         (*u).col(l)=(*u).col(l)+btemp;
-                        // cout<<"theta kk "<<kk<<" done"<<endl;
                     }
                 }
                 maxtheta=change.lpNorm<Infinity>();
                 maxu=change2.lpNorm<Infinity>();
                 alpha_iter+=1;
                 ttt=max(max(maxalpha,maxtheta),maxu);
-                //cout<<"alpha maxdiff is "<<ttt<<endl;
                 if(ttt<Tol){
                     break;
                 }
@@ -216,7 +200,6 @@ result LS_Lasso_Cluster_4_fan3_p_admm_2lambda(rated_user_and_item x, MatrixXd mo
                 obj2=cal_obj2_2lambda(mualpha2, mubeta2,  lambda1,lambda2,  x.user, movie, users);
                 cout<<"obj="<<obj2<<endl;
                 if (obj1-obj2<0.001) {
-                    //break;
                 }
                 else{
                     obj1=obj2;
@@ -242,7 +225,6 @@ result LS_Lasso_Cluster_4_fan3_p_admm_2lambda(rated_user_and_item x, MatrixXd mo
     re.mualpha=mualpha2;
     re.mubeta=mubeta2;
     re.solu=mtemp;
-    //cout<<"done here"<<endl;
     re.maxdiff=maxdiff;
     return re;
 }//

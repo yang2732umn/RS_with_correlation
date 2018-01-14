@@ -1,6 +1,5 @@
 #include "consider_covariance.h"
 double cal_obj2_2lambda_struct(const two_lambda_struct &A){
-    //user should be train.user
     int n=A.users.rows();
     int p=A.movie.rows();
     MatrixXd solu=A.users*A.mualpha+A.mubeta*A.movie.transpose();

@@ -1,9 +1,5 @@
 #include "consider_covariance.h"
 dresult dcluster_scale_struct_l1_v1(const int outer_first, dcluster_var_l1_para &C)
-//only estimates different wi=1/sigma_i^2, use double clustering on alpha and beta, L1 penalty
-//for alpha,beta, ADMM is multiblock(convex), linear convergence
-//for wi, ADMM is 2 block
-//double clustering is only for part of alpha and beta, last udim2 and mdim2 elements
 {
     
     double Omega_eigen_time=0;
@@ -13,7 +9,6 @@ dresult dcluster_scale_struct_l1_v1(const int outer_first, dcluster_var_l1_para 
     int mdim=C.movie.rows();
     int udim2=C.udim2;
     int mdim2=C.mdim2;
-    //cout<<"done here "<<endl;
     int c1=0;
     int c3=n*(n-1)/2;
     int c4=c3*mdim;//c4=n*(n-1)/2*mdim
@@ -37,7 +32,6 @@ dresult dcluster_scale_struct_l1_v1(const int outer_first, dcluster_var_l1_para 
     VectorXi fdi(1),sdi(1);
     VectorXd temp,atemp(2),btemp(2),a(2),b(2);
     MatrixXd mtemp(n,n);
-    //cout<<"done here "<<endl;
     double obj1, obj2;
     vector<VectorXd> pretilde(n);//records initial error
     
@@ -125,12 +119,10 @@ dresult dcluster_scale_struct_l1_v1(const int outer_first, dcluster_var_l1_para 
     construct_fdisdi(udim2,fdialphainner,sdialphainner);
     
     
-    //for inverse for Zbeta, build inverse matrix
     MatrixXd invZb(n*mdim,n*mdim);
     MatrixXd A2beta=MatrixXd::Zero(n*mdim2*(mdim2-1)/2,n*mdim);
     construct_Zinv(n,mdim,mdim2,invZb,A2beta);
     
-    //for inverse for Zalpha, build inverse matrix and A1alpha, A2alpha
     MatrixXd invZa(p*udim,p*udim);
     MatrixXd A2alpha=MatrixXd::Zero(p*udim2*(udim2-1)/2,p*udim);
     construct_Zinv(p,udim,udim2,invZa,A2alpha);
@@ -153,9 +145,7 @@ dresult dcluster_scale_struct_l1_v1(const int outer_first, dcluster_var_l1_para 
         MatrixXd alpha_old=mualpha2;
         VectorXd wis_old=wis2;//for calculating diff in each outer_iter
         
-        //update mubeta
         int beta_iter=0;
-        //construct mtemp and tempB for each user
         vector<MatrixXd> mtempB(n);
         vector<VectorXd> tempB0(n);
         vector<VectorXd> tempB(n);
@@ -180,7 +170,6 @@ dresult dcluster_scale_struct_l1_v1(const int outer_first, dcluster_var_l1_para 
             high_resolution_clock::time_point start1 = high_resolution_clock::now();
             maxbeta=0;
             tempB=tempB0;
-            //update mubeta
 #pragma omp parallel for
             for (i=0; i<n; ++i) {
                 tempB[i]+=rho_beta*((*z).col(i)-(*gamma).col(i));
@@ -192,8 +181,6 @@ dresult dcluster_scale_struct_l1_v1(const int outer_first, dcluster_var_l1_para 
             high_resolution_clock::time_point stop1 = high_resolution_clock::now();
             timer1+=(duration_cast<duration<double>>(stop1 - start1)).count();
             
-            //update z and gamma
-            //first build t1, A1t2 and A2t3
             
             MatrixXd Zpre=*z;
             construct_t1_A1t2_A2t3(n,mdim,mdim2,fdibeta,sdibeta,fdibetainner,sdibetainner,mubeta2,gamma,theta,u,eta,v,t1,A1t2,A2t3);
@@ -202,10 +189,7 @@ dresult dcluster_scale_struct_l1_v1(const int outer_first, dcluster_var_l1_para 
             VectorXd Ztemp=invZb*(t1+A1t2+A2t3);
             stop1 = high_resolution_clock::now();//
             timer2+=(duration_cast<duration<double>>(stop1 - start1)).count();
-            //this step if use A1^T*t2, multiplication very slow, other steps doesn't use time almost
-            //multiplication still very slow, dim too high: 1900
             
-            //cout<<"dim(invZb) is "<<invZb.rows()<<", "<<invZb.cols()<<endl;
             
             change.resize(n);
             temp.resize(mdim);
@@ -224,7 +208,6 @@ dresult dcluster_scale_struct_l1_v1(const int outer_first, dcluster_var_l1_para 
             maxvec(1)=maxZ;
             maxvec(2)=maxgamma;
             
-            //update theta and u
             start1=high_resolution_clock::now();
             maxtheta=0;
             maxu=0;
@@ -253,7 +236,6 @@ dresult dcluster_scale_struct_l1_v1(const int outer_first, dcluster_var_l1_para 
             stop1 = high_resolution_clock::now();
             timer3+=(duration_cast<duration<double>>(stop1 - start1)).count();
             
-            //update eta and v
             start1=high_resolution_clock::now();
             maxeta=0;
             maxv=0;
@@ -289,11 +271,8 @@ dresult dcluster_scale_struct_l1_v1(const int outer_first, dcluster_var_l1_para 
             
             beta_iter+=1;
             ttt=maxvec.lpNorm<Infinity>();
-            //cout<<"beta_iter="<<beta_iter<<", ttt="<<ttt<<endl;
             
             bool judge=ttt<2*C.Tol;
-            //judge=judge||(iter_outer<15&&beta_iter>10);
-            //judge=judge||(iter_outer<30&&beta_iter>30);
             judge=judge||(iter_outer<200&&beta_iter>10);
             if(judge) break;
             
@@ -316,7 +295,6 @@ dresult dcluster_scale_struct_l1_v1(const int outer_first, dcluster_var_l1_para 
         
         cout<<"beta for v1 cost "<<difftime(tend, tstart)<<" secs. \n";
         
-        //update mualpha
         int alpha_iter=0;
         mtempB.resize(p);//store matrix inverse for alpha
         tempB0.resize(p);
@@ -341,7 +319,6 @@ dresult dcluster_scale_struct_l1_v1(const int outer_first, dcluster_var_l1_para 
         }
         
         while(alpha_iter<C.maxIter){
-            //cout<<"using parallel for alpha"<<endl;
             maxalpha=0;
             tempA=tempB0;
 #pragma omp parallel for
@@ -354,8 +331,6 @@ dresult dcluster_scale_struct_l1_v1(const int outer_first, dcluster_var_l1_para 
             maxvec(0)=maxalpha;
             C.mualpha1=mualpha2;
             
-            //update z2 and gamma2
-            //first build t1a, t2a and t3a
             /*#pragma omp parallel for
              for (i=0; i<p; ++i) {
              t1a.segment(i*udim,udim)=mualpha2.col(i)+(*gamma2).col(i);//ok
@@ -396,7 +371,6 @@ dresult dcluster_scale_struct_l1_v1(const int outer_first, dcluster_var_l1_para 
             maxvec(1)=maxZ;
             maxvec(2)=maxgamma;
             
-            //update theta2 and u2
             maxtheta=0;
             maxu=0;
             change.resize((*theta2).cols());//for theta2
@@ -423,7 +397,6 @@ dresult dcluster_scale_struct_l1_v1(const int outer_first, dcluster_var_l1_para 
             maxvec(4)=maxu;
             
             
-            //update eta2 and v2
             maxeta=0;
             maxv=0;
             change.resize(p);//for eta
@@ -455,10 +428,7 @@ dresult dcluster_scale_struct_l1_v1(const int outer_first, dcluster_var_l1_para 
             
             alpha_iter+=1;
             ttt=maxvec.lpNorm<Infinity>();
-            //cout<<"alpha_iter="<<alpha_iter<<", ttt="<<ttt<<endl;
             bool judge=ttt<2*C.Tol;
-            //judge=judge||(iter_outer<15&&alpha_iter>10);
-            //judge=judge||(iter_outer<30&&alpha_iter>30);
             judge=judge||(iter_outer<200&&alpha_iter>10);
             if(judge) break;
         }
@@ -476,7 +446,6 @@ dresult dcluster_scale_struct_l1_v1(const int outer_first, dcluster_var_l1_para 
         cout<<"obj="<<obj2<<endl;
         
         
-        //alpha, beta finished updating, next update w
         pretilde=cal_resid(mualpha2,mubeta2,C.x.user,C.movie,C.users);
 #pragma omp parallel for
         for (i=0; i<n; ++i) {
@@ -522,11 +491,8 @@ dresult dcluster_scale_struct_l1_v1(const int outer_first, dcluster_var_l1_para 
                 }
                 ++Omega_inner_iter;
             }//got wis2
-            //cout<<"Omega_inner_iter="<<Omega_inner_iter<<", with diff="<<diff<<endl;
-            //cout<<"wis2="<<wis2.transpose()<<endl;
             maxw=(wis2-C.wis1).lpNorm<Infinity>();
             
-            //update eta_w and u_w
             atemp.resize(n*(n-1)/2);
             btemp.resize(atemp.size());
 #pragma omp parallel for private(j,l)
@@ -547,13 +513,9 @@ dresult dcluster_scale_struct_l1_v1(const int outer_first, dcluster_var_l1_para 
             u_w+=btemp;
             
             ttt=max((max(maxw,maxeta_w)),maxu_w);
-            //cout<<"atemp="<<atemp.head(10).transpose()<<endl;cout<<"eta_w="<<eta_w.head(10).transpose()<<endl;
-            //cout<<"Omega_iter="<<Omega_iter<<", with ttt="<<ttt<<", maxw="<<maxw<<", maxeta_w="<<maxeta_w<<", maxu_w="<<maxu_w<<endl;
             ++Omega_iter;
             C.wis1=wis2;
             bool judge=(Omega_iter>1)&&ttt<2*C.Tol;
-            //judge=judge||(iter_outer<15&&Omega_iter>10);
-            //judge=judge||(iter_outer<30&&Omega_iter>30);
             judge=judge||(iter_outer<200&&Omega_iter>10);
             if(judge) break;//too strict? 2*C.Tol?((Omega_iter>1)&&ttt<0.1/sqrt(iter_outer))
         }
@@ -581,14 +543,12 @@ dresult dcluster_scale_struct_l1_v1(const int outer_first, dcluster_var_l1_para 
         maxdiff_outer=max(max(maxalpha,maxbeta),maxw);
         cout<<"maxdiff_outer="<<maxdiff_outer<<endl;
         cout<<"wis[30]="<<wis2(30)<<endl;
-        //cout<<"wis="<<wis2.transpose()<<endl;
         beta_old=mubeta2;
         alpha_old=mualpha2;
         wis_old=wis2;
         iter_outer=iter_outer+1;
         cout<<"iter is "<<iter_outer<<endl;
         if(abs(obj1-obj2)<0.01/*&&iter_outer>200  5e-3 &&maxdiff_outer<1e-3*/){// for cold-start, this may be too strict, change to abs(obj1-obj2)/abs(obj1)<1e-4?
-            //abs(obj1-obj2)<5e-3 still too strict? Change to abs(obj1-obj2)<0.01?or evern 0.1?
             if(outer_first==1&&iter_outer>205) break;//previously was 0.1,now running 0.01
             if(outer_first==0) break;
         }
@@ -610,7 +570,6 @@ dresult dcluster_scale_struct_l1_v1(const int outer_first, dcluster_var_l1_para 
     re.mubeta=mubeta2;
     re.wis=wis2;
     re.solu=mtemp;
-    //cout<<"MSE_train is "<<cal_MSE(mtemp,C.x)<<endl;
     re.maxdiff=maxdiff_outer;
     re.obj=obj2;
     return re;

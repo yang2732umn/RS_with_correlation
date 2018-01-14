@@ -15,7 +15,6 @@ VectorXd solve21_hock(VectorXd &A,double lambda){
     }
     VectorXi ordermats(K);
     VectorXi new_ordermats(K);
-    //main iteration
     for(int iter=1;iter<=K-1;++iter){
         
         for(int k=0;k<K;++k){
@@ -44,7 +43,6 @@ VectorXd solve21_hock(VectorXd &A,double lambda){
                 fusions(k,kp)=fusions(k,kp)||((ordermats[k]-1==ordermats[kp])&&(new_ordermats[k]<new_ordermats[kp]))||
 				((ordermats[k]+1==ordermats[kp])&&(new_ordermats[k]>new_ordermats[kp]))||
 				(abs(A[k]-A[kp])<1e-4);
-                //fusions(k,kp) = (fusions(k,kp)>0);
                 fusions(kp,k)=fusions(k,kp);
             }
         }

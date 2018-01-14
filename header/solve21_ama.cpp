@@ -1,11 +1,9 @@
 #include "consider_covariance.h"
 VectorXd solve21_ama(const VectorXd &y,double lambda, int maxIter, double Tol)// use ADMM solve min1/2||y-beta||^2+lambda||D beta||_1  (equation 21)
 {
-    //all connected
     int iter=0;
     int p=y.size();
     double maxdiff,mu=1.5/p;//mu numerator must be 1.0 rather than 1, otherwise mu=0
-    //cout<<"mu="<<mu<<endl;
     VectorXd b=VectorXd::Zero(p*(p-1)/2);
     VectorXd v=b;
     VectorXd beta=y;//start algorithm from y
@@ -41,7 +39,6 @@ VectorXd solve21_ama(const VectorXd &y,double lambda, int maxIter, double Tol)//
             for(int t2=t1+1;t2<p;++t2){
                 l=t1*(p-(t1+1)*0.5)+t2-t1-1;
                 temp(l)=beta[t1]-beta[t2]+v[l]/mu;
-                //cout<<"temp[l]="<<temp[l]<<endl;
             }
         }
         temp=ST_vec(temp,lambda/mu);
@@ -60,17 +57,12 @@ VectorXd solve21_ama(const VectorXd &y,double lambda, int maxIter, double Tol)//
         maxdiff=max(maxdiff,maxv);
         v=v+temp;
         ++iter;
-        //cout<<"solve21 maxdiff is "<<maxdiff<<endl;
-        //cout<<"iter is "<<iter<<endl;
         
         if(maxdiff<Tol) break;
     }
     if(maxdiff>Tol){
         cout<<"solve21 ama not converged, maxdiff is "<<maxdiff<<endl;
-        //cout<<"problem size is "<<p<<endl;
-        //cout<<"y is "<<y.transpose()<<endl;
     }
-    //if(maxdiff<=Tol) cout<<"solve21 took "<<iter<<" iterations to converge."<<endl;
     if(isnan(beta)) cout<<"beta is "<<(beta).transpose()<<endl;
     /*obj=0.5*(y-beta).squaredNorm();
      for(int t1=0;t1<p-1;++t1){

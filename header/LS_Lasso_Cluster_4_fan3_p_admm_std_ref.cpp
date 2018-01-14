@@ -1,7 +1,5 @@
 #include "consider_covariance.h"
 result LS_Lasso_Cluster_4_fan3_p_admm_std_ref(const Cluster_p_novariance_scale_para &C){
-    //fix Omega at I
-    //the same result as Cluster_mnl_p_ADMM function comment out Omega update part, standardize penalty and likelihood,
     double lambda1=C.lambda1;
     double Tol=C.Tol;
     double rho=C.rho;
@@ -16,7 +14,6 @@ result LS_Lasso_Cluster_4_fan3_p_admm_std_ref(const Cluster_p_novariance_scale_p
     int p=movie.rows();
     int udim=users.cols();
     int mdim=movie.cols();
-    //cout<<"done here "<<endl;
     
     MatrixXd mualpha2=mualpha1;
     MatrixXd mubeta2=mubeta1;
@@ -32,7 +29,6 @@ result LS_Lasso_Cluster_4_fan3_p_admm_std_ref(const Cluster_p_novariance_scale_p
     VectorXi fdi(1),sdi(1);
     VectorXd temp,atemp(2),a(2),btemp(2),b(2);
     MatrixXd mtemp(n,n);
-    //cout<<"done here "<<endl;
     double obj1,obj2,maxalpha,maxbeta,maxu,maxtheta;
     VectorXd change, change2;
     double ttt;
@@ -61,7 +57,6 @@ result LS_Lasso_Cluster_4_fan3_p_admm_std_ref(const Cluster_p_novariance_scale_p
     double lambda_alpha=c1*lambda1/c5;
     double rho_alpha=c1*rho/c5;
     double rho_beta=c1*rho/c4;
-    //construct mtemp and tempB for each user
     vector<MatrixXd> mtempB(n);
     vector<VectorXd> tempB(n);
     vector<VectorXd> tempB0(n);
@@ -90,7 +85,6 @@ result LS_Lasso_Cluster_4_fan3_p_admm_std_ref(const Cluster_p_novariance_scale_p
     }
     
     while (iter<maxIter) {
-        //update mubeta
         int beta_iter=0;
         if (iter==0) {
             *theta=MatrixXd::Zero(mubeta2.cols(),(n*(n-1)/2));
@@ -171,8 +165,6 @@ result LS_Lasso_Cluster_4_fan3_p_admm_std_ref(const Cluster_p_novariance_scale_p
             maxu=change2.lpNorm<Infinity>();
             beta_iter+=1;
             ttt=max(max(maxbeta,maxtheta),maxu);
-            //cout<<"beta_iter is "<<beta_iter<<endl;
-            //cout<<"maxbeta="<<maxbeta<<", maxu="<<maxu<<", maxtheta="<<maxtheta<<endl;
             if(ttt<2*Tol){
                 break;
             }
@@ -186,14 +178,12 @@ result LS_Lasso_Cluster_4_fan3_p_admm_std_ref(const Cluster_p_novariance_scale_p
             obj2=cal_obj2_2lambda_struct(A)/c1*100;
             cout<<"obj="<<obj2<<endl;
             if (obj1-obj2<0.001) {
-                //break;
             }
             else{
                 obj1=obj2;
             }
         }
         
-        //update mualpha
         int alpha_iter=0;
         if (iter==0) {
             *theta2=MatrixXd::Zero(mualpha2.rows(),p*(p-1)/2);
@@ -206,7 +196,6 @@ result LS_Lasso_Cluster_4_fan3_p_admm_std_ref(const Cluster_p_novariance_scale_p
                 int userno=itemmore[i].user[j];
                 int index=itemmore[i].numberforuser[j];
                 double ttt=x.user[userno].rating[index]-(movie.row(i)).dot(mubeta2.row(userno));
-                //cout<<"x.user[i].rating.size() is "<<x.user[i].rating.size()<<endl;
                 mtemp.col(j)=ttt*users.row(userno);
             }
             tempA0[i]=mtemp.rowwise().sum();
@@ -251,11 +240,8 @@ result LS_Lasso_Cluster_4_fan3_p_admm_std_ref(const Cluster_p_novariance_scale_p
                     mualpha2.col(i)=mtempA[i]*temp;
                 }
                 maxalpha_inner=absm(mualpha2-mualpha1_inner2).maxCoeff();
-                //cout<<"maxalpha_inner="<<maxalpha_inner<<endl;
                 ++alpha_iter_inner;
                 if (maxalpha_inner<Tol||maxalpha_inner>1) {
-                    //cout<<"most inner for alpha used "<<alpha_iter_inner<<" iterations"<<endl;
-                    //cout<<"maxalpha_inner="<<maxalpha_inner<<endl;
                     break;
                 }
             }
@@ -279,14 +265,12 @@ result LS_Lasso_Cluster_4_fan3_p_admm_std_ref(const Cluster_p_novariance_scale_p
                     btemp=mualpha2.col(i)-mualpha2.col(j)-(*theta2).col(l);
                     change2[l]=btemp.lpNorm<Infinity>();
                     (*u2).col(l)=(*u2).col(l)+btemp;
-                    // cout<<"theta kk "<<kk<<" done"<<endl;
                 }
             }
             maxtheta=change.lpNorm<Infinity>();
             maxu=change2.lpNorm<Infinity>();
             alpha_iter+=1;
             ttt=max(max(maxalpha,maxtheta),maxu);
-            //cout<<"alpha maxdiff is "<<ttt<<endl;
             if(ttt<2*Tol||ttt>100){
                 break;
             }

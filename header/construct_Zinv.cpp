@@ -1,8 +1,5 @@
 #include "consider_covariance.h"
 void construct_Zinv(const int& n,const int& mdim,const int& mdim2,MatrixXd& Zinv, MatrixXd& A2){
-    //matrix references should be in right size already
-    //Zinv(n*mdim,n*mdim); A1(n*(n-1)/2*mdim,n*mdim); A2(n*mdim2*(mdim2-1)/2,n*mdim)
-    //use parallel inside, because there will be no further parallism outside
     MatrixXd partXb=MatrixXd::Identity(mdim,mdim);
     MatrixXd tl=(1.0/(mdim2+1))*MatrixXd::Ones(mdim2,mdim2)+(1.0/(mdim2+1))*MatrixXd::Identity(mdim2,mdim2);//Xb topleft
     partXb.topLeftCorner(mdim2,mdim2)=tl;

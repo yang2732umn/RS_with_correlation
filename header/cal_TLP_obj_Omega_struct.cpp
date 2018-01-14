@@ -1,6 +1,5 @@
 #include "consider_covariance.h"
 double cal_TLP_obj_Omega_struct(const TLP_obj_Omega_struct &A){
-    //use double off_diff
     int n=A.users.rows();
     int p=A.movie.rows();
     double obj=0,temp=0;
@@ -31,8 +30,6 @@ double cal_TLP_obj_Omega_struct(const TLP_obj_Omega_struct &A){
          }
          }*/
     }
-    //obj=obj+2*A.lambda2*temp/(A.c3*A.tau);
-    //cout<<"l1 norm part of Omega is "<<temp<<endl;
     obj=obj+A.lambda3*A.off_diff/(A.c6*A.tau);
     obj=obj*100;
     return obj;

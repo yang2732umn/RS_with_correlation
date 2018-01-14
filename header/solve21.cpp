@@ -34,12 +34,6 @@ VectorXd solve21(const VectorXd &y,double lambda, int maxIter, double Tol){// us
         MatrixXd mtemp2=-MatrixXd::Ones(p,p);
         mtemp2.diagonal()=VectorXd::Ones(p)*(p-1);
         MatrixXd mtemp=MatrixXd::Identity(p,p)+mu*mtemp2;//should always be PD
-        //if(!mtemp.ldlt().isPositive()) cout<<"Not invertible!!"<<endl;
-        //else cout<<"Invertible"<<endl;
-        //EigenSolver<MatrixXd> es(mtemp,false);
-        //VectorXd eigenv=es.eigenvalues().real();
-        //cout<<"Eigenvalues of mtemp are "<<endl;
-        //cout<<eigenv.transpose()<<endl;
         temp=mtemp.inverse()*temp;
         maxbeta=(temp-beta).lpNorm<Infinity>();
         maxdiff=max(maxdiff,maxbeta);
@@ -69,15 +63,12 @@ VectorXd solve21(const VectorXd &y,double lambda, int maxIter, double Tol){// us
         maxdiff=max(maxdiff,maxv);
         v=v+temp;
         ++iter;
-        //cout<<"solve21 maxdiff is "<<maxdiff<<endl;
-        //cout<<"iter is "<<iter<<endl;
         
         if(maxdiff<Tol) break;
     }
     if(maxdiff>Tol){
         cout<<"solve21 not converged, maxdiff is "<<maxdiff<<endl;
     }
-    //if(maxdiff<=Tol) cout<<"solve21 took "<<iter<<" iterations to converge."<<endl;
     if(isnan(beta)) cout<<"beta is "<<(beta).transpose()<<endl;
     obj=0.5*(y-beta).squaredNorm();
     for(int t1=0;t1<p-1;++t1){

@@ -1,6 +1,5 @@
 #include "consider_covariance.h"
 vector<MatrixXd> readgn_seq(const string& filename,int nmat){//read a sequence of nmat matrices from a file
-    //in the first row there are the dimension of the data
     int n;//designed for general data.
     int m;
     vector<MatrixXd> matrices;

@@ -1,15 +1,9 @@
 #include "consider_covariance.h"
 result LS_Lasso_Cluster_p_inadmm_std3(const rated_user_and_item & x, const MatrixXd & movie, const MatrixXd & users, MatrixXd & mualpha1, MatrixXd& mubeta1, double & lambda1, double & rho,double  Tol, int maxIter){
-    //fix Omega at I
-    //the same result as Cluster_mnl_p_ADMM function comment out Omega update part, standardize penalty and likelihood
-    //also deal with if parallel computing of alpha doesn't work
-    //use inexact admm
-    //first use r=0.8, after converge, use r=1
     int n=users.rows();
     int p=movie.rows();
     int udim=users.cols();
     int mdim=movie.cols();
-    //cout<<"done here "<<endl;
     
     MatrixXd mualpha2=mualpha1;
     MatrixXd mubeta2=mubeta1;
@@ -24,7 +18,6 @@ result LS_Lasso_Cluster_p_inadmm_std3(const rated_user_and_item & x, const Matri
     *u2=*theta2;
     
     double rt=1-0.2;//Does it always work? For a different n and p? How to control the part using r=0.8? Now use iter 10次后没有下降，停止;
-    //rt 不是越小越快
     double maxdiff=100;
     int iter=0;
     int i,j;
@@ -32,7 +25,6 @@ result LS_Lasso_Cluster_p_inadmm_std3(const rated_user_and_item & x, const Matri
     VectorXi fdi(1),sdi(1);
     VectorXd temp,atemp(2),a(2),btemp(2),b(2);
     MatrixXd mtemp(n,n);
-    //cout<<"done here "<<endl;
     double obj1,obj2,maxalpha,maxbeta,maxu,maxtheta,objt0,objt10;
     VectorXd change, change2;
     double ttt;
@@ -62,7 +54,6 @@ result LS_Lasso_Cluster_p_inadmm_std3(const rated_user_and_item & x, const Matri
     double lambda_alpha=c1*lambda1/c5;
     double rho_alpha=c1*rho/c5;
     double rho_beta=c1*rho/c4;
-    //construct mtemp and tempB for each user
     vector<MatrixXd> mtempB(n);
     vector<VectorXd> tempB(n);
     vector<VectorXd> tempB0(n);
@@ -137,7 +128,6 @@ result LS_Lasso_Cluster_p_inadmm_std3(const rated_user_and_item & x, const Matri
     
     tstart=time(0);
     while (iter<maxIter) {
-        //update mubeta
         int beta_iter=0;
 #pragma omp parallel for private(alphause,useri)//working
         for(i=0;i<n;++i){
@@ -240,7 +230,6 @@ result LS_Lasso_Cluster_p_inadmm_std3(const rated_user_and_item & x, const Matri
             
         }
         
-        //update mualpha
         int alpha_iter=0;
 #pragma omp parallel for private(j,mtemp)//working
         for(i=0;i<p;++i){
@@ -249,7 +238,6 @@ result LS_Lasso_Cluster_p_inadmm_std3(const rated_user_and_item & x, const Matri
                 int userno=itemmore[i].user[j];
                 int index=itemmore[i].numberforuser[j];
                 double ttt=x.user[userno].rating[index]-(movie.row(i)).dot(mubeta2.row(userno));
-                //cout<<"x.user[i].rating.size() is "<<x.user[i].rating.size()<<endl;
                 mtemp.col(j)=ttt*users.row(userno);
             }
             tempA0[i]=mtemp.rowwise().sum();
@@ -260,8 +248,6 @@ result LS_Lasso_Cluster_p_inadmm_std3(const rated_user_and_item & x, const Matri
             alphapre=mualpha2;
             tempA=tempA0;
             alphasum=mualpha2.rowwise().sum();
-            //#pragma omp parallel for private(fdi,mtemp,j,sdi)
-            //working? No. p too small=30, unparallel seems better. Still unclear why, above two parallels also are on p, but is a little faster
             for(i=0;i<p;++i){
                 if(i<p-1){
                     fdi=fdialpha[i];
@@ -304,7 +290,6 @@ result LS_Lasso_Cluster_p_inadmm_std3(const rated_user_and_item & x, const Matri
              btemp=mualpha2.col(i)-mualpha2.col(j)-(*theta2).col(l);
              change2[l]=btemp.lpNorm<Infinity>();
              (*u2).col(l)=(*u2).col(l)+btemp;
-             //cout<<"theta kk "<<kk<<" done"<<endl;
              }
              }*/
             
@@ -328,7 +313,6 @@ result LS_Lasso_Cluster_p_inadmm_std3(const rated_user_and_item & x, const Matri
             maxu=change2.lpNorm<Infinity>();
             alpha_iter=alpha_iter+1;
             ttt=max(max(maxalpha,maxtheta),maxu);
-            //cout<<"alpha maxdiff is "<<ttt<<endl;
             if(ttt<2*Tol/*||ttt>100*/){//also changed here from parallel to unparallel
                 break;
             }
@@ -375,7 +359,6 @@ result LS_Lasso_Cluster_p_inadmm_std3(const rated_user_and_item & x, const Matri
     
     cout<<"First part done. It took "<<difftime(tend, tstart)<<" s."<<endl;  
     
-    //rt=1;
 #pragma omp parallel for
     for(i=0;i<n;++i){
         movieuse[i]=matrix_rowsub(movie,x.user[i].item);
@@ -397,7 +380,6 @@ result LS_Lasso_Cluster_p_inadmm_std3(const rated_user_and_item & x, const Matri
     }
     tstart=time(0);
     while (iter<maxIter) {
-        //update mubeta
         int beta_iter=0;
 #pragma omp parallel for private(alphause,useri)
         for(i=0;i<n;++i){
@@ -458,8 +440,6 @@ result LS_Lasso_Cluster_p_inadmm_std3(const rated_user_and_item & x, const Matri
             maxu=change2.lpNorm<Infinity>();
             beta_iter=beta_iter+1;
             ttt=max(max(maxbeta,maxtheta),maxu);
-            //cout<<"beta_iter is "<<beta_iter<<endl;
-            //cout<<"maxbeta="<<maxbeta<<", maxu="<<maxu<<", maxtheta="<<maxtheta<<endl;
             if(ttt<2*Tol){
                 break;
             }
@@ -478,14 +458,12 @@ result LS_Lasso_Cluster_p_inadmm_std3(const rated_user_and_item & x, const Matri
             obj2=cal_obj2_2lambda_struct(A)/c1*100;
             cout<<"obj="<<obj2<<endl;
             /*if (obj1-obj2<0.001) {
-             //break;
              }
              else{
              obj1=obj2;
              }*/
         }
         
-        //update mualpha
         int alpha_iter=0;
 #pragma omp parallel for private(j,mtemp)
         for(i=0;i<p;++i){
@@ -494,7 +472,6 @@ result LS_Lasso_Cluster_p_inadmm_std3(const rated_user_and_item & x, const Matri
                 int userno=itemmore[i].user[j];
                 int index=itemmore[i].numberforuser[j];
                 double ttt=x.user[userno].rating[index]-(movie.row(i)).dot(mubeta2.row(userno));
-                //cout<<"x.user[i].rating.size() is "<<x.user[i].rating.size()<<endl;
                 mtemp.col(j)=ttt*users.row(userno);
             }
             tempA0[i]=mtemp.rowwise().sum();
@@ -547,14 +524,12 @@ result LS_Lasso_Cluster_p_inadmm_std3(const rated_user_and_item & x, const Matri
                     btemp=mualpha2.col(i)-mualpha2.col(j)-(*theta2).col(l);
                     change2[l]=btemp.lpNorm<Infinity>();
                     (*u2).col(l)=(*u2).col(l)+btemp;
-                    //cout<<"theta kk "<<kk<<" done"<<endl;
                 }
             }
             maxtheta=change.lpNorm<Infinity>();
             maxu=change2.lpNorm<Infinity>();
             alpha_iter=alpha_iter+1;
             ttt=max(max(maxalpha,maxtheta),maxu);
-            //cout<<"alpha maxdiff is "<<ttt<<endl;
             if(ttt<2*Tol/*||ttt>100*/){//also changed here from parallel to unparallel
                 break;
             }

@@ -1,22 +1,9 @@
 #include "consider_covariance.h"
-//Difference from _v6, this changes the iterations inside iter_ori
-result Cluster_p_inADMM_scale_struct_v9_4(double c,Cluster_mnl_p_ADMM_scale_para2_2 &C){//not verified yet
-    //difference from v8, use Cluster_mnl_p_ADMM_scale_para2, not pointers for theta, u, etc...
-    //use d.o.c. for L1 version, this is convexity adjustment
-    //does propagation of Omega
-    //inexact admm
-    //with L1 penalty on Omega
-    //diff from v4: Apply ADMM together for alpha, beta(Inexact) and Omega
-    //alpha change sometimes increase obj value? find alpha bug
-    //v4 saves the matrix inversions for alpha and beta, also saves a part of temp for beta
-    //add one more cycle for alpha and beta to minimize w.r.t.
-    //this function uses ADMM for Omega
-    //x should be train data
+result Cluster_p_inADMM_scale_struct_v9_4(double c,Cluster_mnl_p_ADMM_scale_para2_2 &C){//
     int n=C.users.rows();
     int p=C.movie.rows();
     int udim=C.users.cols();
     int mdim=C.movie.cols();
-    //cout<<"done here "<<endl;
     int c1=0,c2=0,c3=0,c6=0;
     int c4=n*(n-1)/2*mdim;
     int c5=p*(p-1)/2*udim;
@@ -31,25 +18,11 @@ result Cluster_p_inADMM_scale_struct_v9_4(double c,Cluster_mnl_p_ADMM_scale_para
     vector<rated_1itemmore> itemmore=construct_itemmore(C.x);
     c6=(p+rlv.size())*n*(n-1)/2;
     
-    //MatrixXi nrated=MatrixXi::Zero(p,p);
-    // for(int kk=0;kk<p;++kk){
-//      int usersize=itemmore[kk].user.size();
-//      cout<<"item "<<kk<<" rated by "<<usersize<<" people \n";
-//     }
-    //for (int k=0; k<rlv.size();++k) {
-     //int usersize=rlv[k].userno.size();
-     //cout<<"item1 "<<rlv[k].item1<<", item2 "<<rlv[k].item2<<" by "<<usersize<<endl;
-     //nrated(rlv[k].item1,rlv[k].item2)=usersize;
-     //nrated(rlv[k].item2,rlv[k].item1)=usersize;
-    //}
-    //cout<<"nrated="<<endl<<nrated<<endl;
     
     MatrixXd &mualpha2=C.mualpha1;
     MatrixXd &mubeta2=C.mubeta1;
     
     vector<MatrixXd> &Omegais2=C.Omegais1;//C.Omegais1 is n p*p matrices, but only part of it is used.
-    //double useless=cal_offdiff_prop(trin,Omegais2);
-    //cout<<"Omegais2[17]="<<endl<<Omegais2[17]<<endl;
     MatrixXd &theta=C.theta;//all use theta, resize it for alpha and beta respectively
     MatrixXd &u=C.u;//all use u, resize it for alpha and beta respectively
     MatrixXd &theta2=C.theta2;
@@ -62,7 +35,6 @@ result Cluster_p_inADMM_scale_struct_v9_4(double c,Cluster_mnl_p_ADMM_scale_para
     VectorXi fdi(1),sdi(1);
     VectorXd temp,atemp(2),btemp(2),a(2),b(2);
     MatrixXd mtemp(n,n);
-    //cout<<"done here "<<endl;
     double obj1,obj2,obj_doc1,obj_doc2;
     double rt=1-0.3;//first rt smaller than 1
     vector<MatrixXd> Sis(n);
@@ -90,12 +62,10 @@ result Cluster_p_inADMM_scale_struct_v9_4(double c,Cluster_mnl_p_ADMM_scale_para
     vector<int> itemmore_idle(p),rlv_idle(rlv.size());
 #pragma omp parallel for private(j)
     for (i=0; i<p; ++i) {
-        //stl_vec_cout(itemmore[i].user);
         for (j=0; j<itemmore[i].user.size(); ++j) {
             if(j<itemmore[i].user[j]) break;
         }//result j is one user didn't rate this item
         itemmore_idle[i]=j;
-        //cout<<"itemmore_idle["<<i<<"]="<<itemmore_idle[i]<<endl;
     }
 #pragma omp parallel for private(l)
     for (i=0; i<rlv.size(); ++i) {
@@ -217,7 +187,6 @@ result Cluster_p_inADMM_scale_struct_v9_4(double c,Cluster_mnl_p_ADMM_scale_para
     MatrixXd betadoc_pre=mubeta2,alphadoc_pre=mualpha2;
     vector<MatrixXd> Omegaisdoc_pre(n);//store sub-matrix directly
     
-    //first part with rt!=1
     
     time_t tstart1,tend1,tstart2,tend2,tstart3,tend3,tstart4,tend4,tstart5,tend5,tstart6,tend6;
     double time1=0,time2=0,time3=0,time4=0,time5=0,time6=0;
@@ -225,7 +194,6 @@ result Cluster_p_inADMM_scale_struct_v9_4(double c,Cluster_mnl_p_ADMM_scale_para
     obj_doc1=cal_obj_prop_struct_5(Sis,A);//the function value d.o.c. needs to minimize, d.o.c. check its decrease
     cout<<"obj_doc initial="<<obj_doc1<<endl;
     cout<<"Initial mubeta.block(0,0,5,5)="<<endl<<(*A.mubeta).block(0,0,5,5)<<endl;
-    //cout<<"A.mubeta.block<2,2>(0,0)="<<(*A.mubeta).block<2,2>(0,0)<<endl;
     int a_b_converged=0;
     while (doc_iter<C.maxIter){
         admm_iter=0;
@@ -472,12 +440,6 @@ result Cluster_p_inADMM_scale_struct_v9_4(double c,Cluster_mnl_p_ADMM_scale_para
             }
             
             
-            //cout<<"iter_ori="<<iter_ori<<endl;
-            //current Sis is available
-            //cout<<"maxalpha="<<maxalpha<<endl;
-            //cout<<"mualpha2.block(0,0,5,5)="<<endl<<mualpha2.block(0,0,5,5)<<endl;
-            //cout<<"iter_ori="<<iter_ori<<endl;
-            //cout<<"maxdiff_inner="<<maxdiff_inner<<endl;
             if (!a_b_converged){
                 change.resize(theta.cols());
                 change2.resize(change.size());
@@ -504,7 +466,6 @@ result Cluster_p_inADMM_scale_struct_v9_4(double c,Cluster_mnl_p_ADMM_scale_para
   				cout<<"max change of mubeta occurs at row "<<maxRow<<", col "<<maxCol<<", from "
   				 <<betapre(maxRow,maxCol)<<" to "<<mubeta2(maxRow,maxCol)<<"."<<endl;
                 tttbeta=max(max(maxbeta,maxtheta_beta),maxu_beta);
-                //cout<<"beta maxdiff="<<tttbeta<<endl;
                 change.resize(theta2.cols());
                 change2.resize(theta2.cols());
 #pragma omp parallel for private(i,j,btemp,b)
@@ -524,19 +485,13 @@ result Cluster_p_inADMM_scale_struct_v9_4(double c,Cluster_mnl_p_ADMM_scale_para
                 maxtheta_alpha=change.lpNorm<Infinity>();
                 maxu_alpha=change2.lpNorm<Infinity>();
                 maxalpha=absm(mualpha2-alphapre).maxCoeff();
-                //cout<<"maxalpha="<<maxalpha<<endl;
                 tttalpha=max(max(maxalpha,maxtheta_alpha),maxu_alpha);
-                //cout<<"alpha maxdiff is "<<tttalpha<<endl;
             }
             
-            //update dual for Omega
             cout<<"calculate Z, U"<<endl;
-            //update Zis
             tstart2=time(0);
             off_diff=0;
-            //diagonal elements, should also use solve21_ama
             change.resize(p);
-//#pragma omp parallel for private(j,l,atemp) reduction(+:off_diff)
             for(i=0;i<p;++i){
                 int usersize=itemmore[i].user.size();//just assume no movie is rated by every person
                 atemp.resize(usersize+1);
@@ -551,13 +506,6 @@ result Cluster_p_inADMM_scale_struct_v9_4(double c,Cluster_mnl_p_ADMM_scale_para
                 current[usersize]=Zis[itemmore_idle[i]](i,i);
                 
                 atemp=solve21_ama2_prop_p(atemp,n-usersize,rho_Zdiag,1000,2e-4);//was 1e-4 previously
-                // for (l=0; l<usersize; ++l) {
-//                     #pragma omp parallel for reduction(+:off_diff)
-//                     for (int tt=l+1; tt<usersize+1; ++tt) {
-//                         if(tt<usersize) off_diff=off_diff+abs(atemp[l]-atemp[tt]);
-//                         else off_diff=off_diff+(n-usersize)*abs(atemp[l]-atemp[tt]);
-//                     }
-//                 }
                 change[i]=(atemp-current).lpNorm<Infinity>();
                 #pragma omp parallel for
                 for(j=0;j<n;++j){
@@ -570,28 +518,10 @@ result Cluster_p_inADMM_scale_struct_v9_4(double c,Cluster_mnl_p_ADMM_scale_para
                 }
                 
                 
-//                l=0;
-//                for (j=0; j<n; ++j) {
-//                    if (l<usersize) {
-//                        int userno=itemmore[i].user[l];
-//                        if (j<userno) {
-//                            Zis[j](i,i)=atemp[usersize];
-//                        }
-//                        else{
-//                            Zis[j](i,i)=atemp[l];
-//                            ++l;
-//                        }
-//                    }
-//                    else{
-//                        Zis[j](i,i)=atemp[usersize];
-//                    }
-//                }
             }
             maxZ=change.lpNorm<Infinity>();
             
-            //off-diagonal elements
             change.resize(rlv.size());
-            //#pragma omp parallel for private(i,j,l,ik,il,atemp,mtemp,temp) reduction(+:off_diff)
             for (int k=0; k<rlv.size();++k) {
                 i=rlv[k].item1;
                 j=rlv[k].item2;
@@ -603,29 +533,13 @@ result Cluster_p_inADMM_scale_struct_v9_4(double c,Cluster_mnl_p_ADMM_scale_para
                     int userno=rlv[k].userno[l];
                     atemp[l]=Omegais2[userno](i,j)+Uis[userno](i,j);
                     current[l]=Zis[userno](i,j);
-                    //if (l==0) {
-                        //cout<<"Omegais2[userno](i,j)="<<Omegais2[userno](i,j)<<", Uis[userno](i,j)="<<Uis[userno](i,j)<<endl;
-                        //cout<<"userno="<<userno<<endl;
-                        //cout<<"Omegais2[userno]="<<endl<<Omegais2[userno]<<endl;
-                    //}
                 }
                 atemp[usersize]=Omegais2[rlv_idle[k]](i,j)+Uis[rlv_idle[k]](i,j);
                 current[usersize]=Zis[rlv_idle[k]](i,j);
-                //cout<<"atemp="<<atemp.transpose()<<endl;
-                //cout<<"rho_Z1="<<rho_Z1<<endl;
                 
                 atemp=solve21_ama2_prop_p(atemp,n-usersize,rho_Zdiag/2,1000,2e-4);//was 1e-4 previously
-                //cout<<"atemp="<<atemp.transpose()<<endl;
                 atemp=ST_vec_p(atemp,rho_Z1);//shrink, function itself is parallel
-                //cout<<"atemp="<<atemp.transpose()<<endl;
                 
-                // for (l=0; l<usersize; ++l) {
-//                     #pragma omp parallel for reduction(+:off_diff)
-//                     for (int tt=l+1; tt<usersize+1; ++tt) {
-//                         if(tt<usersize) off_diff=off_diff+abs(atemp[l]-atemp[tt]);
-//                         else off_diff=off_diff+(n-usersize)*abs(atemp[l]-atemp[tt]);//calculated here
-//                     }
-//                 }
                 change[k]=(atemp-current).lpNorm<Infinity>();
                 
 #pragma omp parallel for
@@ -638,22 +552,6 @@ result Cluster_p_inADMM_scale_struct_v9_4(double c,Cluster_mnl_p_ADMM_scale_para
                     Zis[userno](i,j)=Zis[userno](j,i)=atemp[tt];
                 }
                 
-//                l=0;
-//                for (int tt=0; tt<n; ++tt) {
-//                    if (l<usersize) {
-//                        int userno=rlv[k].userno[l];
-//                        if (tt<userno) {
-//                            Zis[tt](i,j)=Zis[tt](j,i)=atemp[usersize];
-//                        }
-//                        else{
-//                            Zis[tt](i,j)=Zis[tt](j,i)=atemp[l];
-//                            ++l;
-//                        }
-//                    }
-//                    else{
-//                        Zis[tt](i,j)=Zis[tt](j,i)=atemp[usersize];
-//                    }
-//                }
             }
             cout<<"done Z calculation"<<endl;
             
@@ -680,9 +578,6 @@ result Cluster_p_inADMM_scale_struct_v9_4(double c,Cluster_mnl_p_ADMM_scale_para
             maxOmega=change.maxCoeff();
             tttOmega=max(max(maxOmega,maxZ),maxU);
             maxdiff_admm=max(max(tttbeta,tttalpha),tttOmega);
-            //A.mubeta=&mubeta2;
-            //A.mualpha=&mualpha2;
-            //A.Omegais=&Omegais2;
             off_diff=0;Osize=0;
 		#pragma omp parallel for private(l,usersize,userno1,userno2,tt) reduction(+:off_diff)
 			for (i=0; i<p; ++i) {
@@ -720,11 +615,7 @@ result Cluster_p_inADMM_scale_struct_v9_4(double c,Cluster_mnl_p_ADMM_scale_para
             obj2=cal_obj_prop_struct_6(c,trin,trip,betadoc_pre,alphadoc_pre,Omegaisdoc_pre,Sis,A);
             tend6=time(0);
             time6+=difftime(tend6,tstart6);
-            //string TF=(abs(obj1-obj2)<2e-4)?"TRUE":"FALSE";
-            //cout<<"tttOmega="<<tttOmega<<", tttbeta="<<tttbeta<<", tttalpha="<<tttalpha<<", obj2="<<obj2<<", "<<TF<<endl;
-            //cout<<"obj2="<<obj2<<endl;//just for admm
             ++admm_iter;
-            //cout<<"mubeta2.block(0,0,5,5)="<<endl<<mubeta2.block(0,0,5,5)<<endl;
             cout<<"admm iter is "<<admm_iter<<", doc_iter="<<doc_iter<<", obj1-obj2="<<obj1-obj2<<", tttalpha="<<tttalpha<<", tttbeta="<<tttbeta<<endl;
             cout<<"obj1="<<obj1<<", obj2="<<obj2<<endl;
             cout<<"maxbeta="<<maxbeta<<", ,maxtheta_beta="<<maxtheta_beta<<", maxu_beta="<<maxu_beta<<endl;
@@ -734,21 +625,16 @@ result Cluster_p_inADMM_scale_struct_v9_4(double c,Cluster_mnl_p_ADMM_scale_para
 			cout<<Omegais2[0].block(0,0,9,9)<<endl; 
 			tend5=time(0);
             time5+=difftime(tend5,tstart5);
-            //if(abs(obj1-obj2)<2e-4&&maxdiff_admm<1e-3/*&&iter_outer>200  5e-3 */) break;//for cold-start, this may be too strict, change to abs(obj1-obj2)/abs(obj1)<1e-4?//abs(obj1-obj2)<5e-3 still too strict? Change to abs(obj1-obj2)<0.01?or even 0.1?
             if((obj1-obj2<2e-4)||(tttalpha<1e-3&&tttbeta<1e-3)) break;  
             obj1=obj2;
         } 
         tend3=time(0);
         time3+=difftime(tend3,tstart3);
         cout<<"tttOmega="<<tttOmega<<", tttbeta="<<tttbeta<<", tttalpha="<<tttalpha<<endl;
-        //current Sis is up to date
         obj_doc2=cal_obj_prop_struct_5(Sis,A);
         cout<<"admm took "<<admm_iter<<" iters"<<endl;
         cout<<"doc_iter="<<doc_iter<<", obj_doc2="<<obj_doc2<<", obj_doc1="<<obj_doc1<<endl;
         cout<<"Omegais[30].block(0,0,5,5)="<<endl<<Omegais2[30].block(0,0,10,10)<<endl;
-        //cout<<"Omegais[30].row(1)="<<Omegais2[30].row(1)<<endl;
-        //cout<<"Zis[30].row(1)="<<Zis[30].row(1)<<endl;
-        //cout<<"Uis[30].row(1)="<<Uis[30].row(1)<<endl;
         cout<<"mubeta.block(0,0,5,5)="<<endl<<mubeta2.block(0,0,5,5)<<endl;
         maxbeta_doc=absm(mubeta2-betadoc_pre).maxCoeff();
         maxalpha_doc=absm(mualpha2-alphadoc_pre).maxCoeff();
@@ -768,21 +654,14 @@ result Cluster_p_inADMM_scale_struct_v9_4(double c,Cluster_mnl_p_ADMM_scale_para
         betadoc_pre=mubeta2;
         alphadoc_pre=mualpha2;
     }
-    //second part
-    //rt=1;
-    //delete theta,u;delete theta2,u2; delete [] Zis;delete [] Uis;
     mtemp.resize(n,p);
     mtemp=C.users*mualpha2+mubeta2*C.movie.transpose();//compact multi is faster than one by one
     result re;
-    //re.mualpha=mualpha2;//checked, this is correct usage of reference
-    //re.mubeta=mubeta2;
-    //re.Omegais=Omegais2;
     re.solu=mtemp;
-    //cout<<"MSE_train is "<<cal_MSE(mtemp,C.x)<<endl;
     re.maxdiff=maxdiff_admm;
     re.obj=obj_doc2;
     return re;
-}//change C value  
+}
 
 
 

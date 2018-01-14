@@ -8,7 +8,6 @@ vector<rated_item> construct_item_from_user(const vector<rated_user> &user){
         }
     }//s contains sorted itemno
     
-    //set automatically orders objects
     
     set<size_t>::iterator it=s.begin();
     

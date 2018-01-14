@@ -1,6 +1,5 @@
 #include "consider_covariance.h"
 void construct_fdisdi(const int& n,vector<VectorXi> &fdi,vector<VectorXi> &sdi){//for all i from 1 to n
-    //fdi and sdi should be of size n-1 already
 #pragma omp parallel for//use parallel because already for all i
     for (int i=0; i<n; ++i) {
         if(i<n-1){

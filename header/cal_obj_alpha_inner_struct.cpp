@@ -1,6 +1,5 @@
 #include "consider_covariance.h"
 double cal_obj_alpha_inner_struct(const obj_alpha_inner_struct &A,const vector<vector<int>>& diffA){//modified for TLP
-    //user should be train.user
     int n=A.users.rows();
     int p=A.movie.rows();
     MatrixXd solu=A.users*A.mualpha+A.mubeta*A.movie.transpose();

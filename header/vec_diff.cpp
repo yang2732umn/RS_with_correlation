@@ -1,5 +1,4 @@
 #include "consider_covariance.h"
-//vector difference, x and y should be the same size
 vector<double> vec_diff(const vector<double> & x,const vector<double> & y){
     int n=x.size();
     vector<double> z(n);

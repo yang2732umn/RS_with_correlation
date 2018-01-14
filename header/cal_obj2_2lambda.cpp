@@ -1,6 +1,5 @@
 #include "consider_covariance.h"
 double cal_obj2_2lambda(const MatrixXd& mualpha,const MatrixXd& mubeta, double lambda1, double lambda2,const vector<rated_user>& user,const MatrixXd& movie, const MatrixXd& users){
-    //user should be train.user
     int n=users.rows();
     int p=movie.rows();
     MatrixXd solu=users*mualpha+mubeta*movie.transpose();

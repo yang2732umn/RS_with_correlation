@@ -20,6 +20,5 @@ vector<rated_1itemmore> construct_itemmore(const rated_user_and_item &A){
         }
         itemmore[i]=itemmorec;
     }
-    //need to calculate a for itemmore
     return itemmore;
 }

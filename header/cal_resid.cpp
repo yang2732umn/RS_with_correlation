@@ -2,7 +2,6 @@
 vector<VectorXd> cal_resid(const MatrixXd &mualpha,const MatrixXd &mubeta,const vector<rated_user> &user,const MatrixXd& movie,const MatrixXd& users){
     int n=mubeta.cols();
     vector<VectorXd> resid(n);
-    //calculate residuals for each user
 #pragma omp parallel for//will not exist further parallelization outside(because is for all users already), can use parallel here
     for (int i=0; i<n; ++i) {//construct pretilde
         MatrixXd alphause=matrix_colsub(mualpha,user[i].item);

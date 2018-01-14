@@ -1,6 +1,5 @@
 #include "consider_covariance.h"
 double cal_w_d_MSE(const MatrixXd &solu, const rated_user_and_item& test,const VectorXd& wis){
-    //diagnonal Omega=wis
     double MSE=0;
     vector<rated_user> user=test.user;
     int k=0;

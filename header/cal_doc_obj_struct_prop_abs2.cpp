@@ -1,11 +1,5 @@
 #include "consider_covariance.h"
 double cal_doc_obj_struct_prop_abs2(double c,const MatrixXd& betapre,const MatrixXd& alphapre,const vector<MatrixXd>& Omegaispre,const vector<MatrixXd>& Sis,const doc_obj_struct &A){
-    //inside doc, abs obj value, but with quadratic adjustment for non-convexity
-    //used in Cluster_TLP_scale_prop_size3
-    //user should be train.user
-    //with L1 penalty on Omega size also
-    //within doc, using previous alpha, beta and Omega to determine set
-    //diffA is for alpha, diffB for beta, diffO is for Omega
     int n=(*A.mubeta).rows();
     int p=(*A.mualpha).cols();
     int mdim=(*A.mubeta).cols();

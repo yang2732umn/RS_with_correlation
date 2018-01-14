@@ -1,11 +1,5 @@
 #include "consider_covariance.h"
 result Cluster_TLP_scale_prop_size6(double c,Cluster_TLP_p_scale_para2 &C){//unparallel version
-    //_size3 is using quadratic terms to adjust for non-convexity, c is the constant that times the quadratic terms(in scaled loss function, the constant is c/c1)
-    //does propagation of Omega
-    //with L1 penalty on Omega
-    //TLP, Apply ADMM together for alpha, beta and Omega
-    //C.x should be train data
-    //difference from size5, use diffA etc to calculate obj_doc
     int n=C.users.rows();
     int p=C.movie.rows();
     int udim=C.users.cols();
@@ -26,11 +20,9 @@ result Cluster_TLP_scale_prop_size6(double c,Cluster_TLP_p_scale_para2 &C){//unp
     c6=(p+rlv.size())*n*(n-1)/2;
     for(kk=0;kk<p;++kk){
         usersize=itemmore[kk].user.size();
-        //cout<<"item "<<kk<<" rated by "<<usersize<<" people \n";
     }
     for (k=0; k<rlv.size();++k) {
         usersize=rlv[k].userno.size();
-        //cout<<"item1 "<<rlv[k].item1<<", item2 "<<rlv[k].item2<<" by "<<usersize<<endl;
     }
     vector<MatrixXd> Sis(n);  
     result re;
@@ -406,10 +398,6 @@ result Cluster_TLP_scale_prop_size6(double c,Cluster_TLP_p_scale_para2 &C){//unp
 	cout<<"Calculating obj_doc cost "<<time1<<" seconds."<<endl;
     cout<<"Omegafuse_tau="<<Omegafuse_tau<<", obj initial="<<obj1<<endl;
     
-   //  A.off_diff=cal_TLP_offdiff_prop(A.tau,*A.Omegais);
-//     cout<<"A.off_diff="<<A.off_diff<<endl;
-//     obj1=cal_TLP_obj_prop_size(Sis,A);  
-//     cout<<"obj initial="<<obj1<<endl;
     
     while (doc_iter<C.maxIter){
     	betadoc=mubeta2;
@@ -419,17 +407,10 @@ result Cluster_TLP_scale_prop_size6(double c,Cluster_TLP_p_scale_para2 &C){//unp
         B.alphafuse=cal_alpha_fuse_abs(trip,mualpha2,diffA);
         B.betafuse=cal_beta_fuse_abs(trin,mubeta2,diffB); 
         B.Omegafusesize=cal_Omega_fusesize_abs(Omegais2,cstrfdi_diag,cstrsdi_diag,cstrfdi_offdiag,cstrsdi_offdiag,judge_diag,judge_offdiag,Osize,rlv,itemmore,itemmore_idle,rlv_idle);
-        //cout<<"B.alphafuse="<<B.alphafuse<<", B.betafuse="<<B.betafuse<<", B.Omegafusesize.first="<<B.Omegafusesize.first<<", B.Omegafusesize.second="<<B.Omegafusesize.second<<endl;
         B.mualpha=&mualpha2;
         B.mubeta=&mubeta2;
         B.Omegais=&Omegais2;
         obj_abs1=cal_doc_obj_struct_prop_abs2(c,betadoc,alphadoc,Omegaisdoc,Sis,B);
-        //cout<<"obj abs inside doc initial is "<<obj_abs1<<endl;
-        //E.mualpha=mualpha2;
-        //E.mubeta=mubeta2;
-        //E.Omegais=Omegais2;
-        //obj_inner=cal_obj_abo(C.rho,C.rho2,E,diffA,diffB,theta2,u2,theta,u,Zis,Uis);//quadratic 
-        //cout<<"Before admm, obj_inner="<<setprecision(12)<<obj_inner<<endl; 
         while (admm_iter<3000) {
             betapre=mubeta2;
             alphapre=mualpha2;
@@ -524,16 +505,11 @@ result Cluster_TLP_scale_prop_size6(double c,Cluster_TLP_p_scale_para2 &C){//unp
                         break;
                     }
                 }
-                //maxbeta=absm(mubeta2-mubeta_inner).maxCoeff();
                 MatrixXd::Index maxRow, maxCol;
             	maxbeta=absm(mubeta2-mubeta_inner).maxCoeff(&maxRow, &maxCol);
             	cout<<"max change of mubeta occurs at row "<<maxRow<<", col "<<maxCol<<", from "
   				 <<mubeta_inner(maxRow,maxCol)<<" to "<<mubeta2(maxRow,maxCol)<<"."<<endl;
-                //E.mubeta=mubeta2;
-                //obj_inner=cal_obj_abo(C.rho,C.rho2,E,diffA,diffB,theta2,u2,theta,u,Zis,Uis);
-                //cout<<"After change beta, obj_inner="<<obj_inner<<endl;
                 
-                //update mualpha
                 mtempB.resize(p);//only store matrix inverse for alpha
 #pragma omp parallel for private(j,mtemp2,mtemp3,userno)
                 for(i=0;i<p;++i){
@@ -553,10 +529,7 @@ result Cluster_TLP_scale_prop_size6(double c,Cluster_TLP_p_scale_para2 &C){//unp
                 double maxalpha_inner=0;
                 int alpha_iter_inner=0;
                 while (alpha_iter_inner<10) {
-                    //always unparallel for alpha
                     MatrixXd mualpha1_inner2=mualpha2;
-                    //double obj_inner0=cal_obj_abo(C.rho,C.rho2,E,diffA,diffB,theta2,u2,theta,u,Zis,Uis);
-                    //cout<<"Before changing alpha, obj_inner="<<setprecision(12)<<obj_inner0<<endl;
                     for(i=0;i<p;++i){
                         mtemp0=MatrixXd::Zero(udim,p);
 #pragma omp parallel for private(j,l)
@@ -588,9 +561,6 @@ result Cluster_TLP_scale_prop_size6(double c,Cluster_TLP_p_scale_para2 &C){//unp
                         }
                         temp+=mtemp.rowwise().sum();
                         mualpha2.col(i)=mtempB[i]*temp;
-                        //E.mualpha=mualpha2;
-                        //obj_inner=cal_obj_abo(C.rho,C.rho2,E,diffA,diffB,theta2,u2,theta,u,Zis,Uis);
-                        //cout<<"After change alpha col "<<i<<", obj_inner="<<setprecision(12)<<obj_inner<<endl;
                         /*if(obj_inner>obj_inner0){
                          cout<<"Stopping here, obj is increasing!"<<endl;
                          cout<<"involvedA[i]="<<involvedA[i]<<endl;
@@ -601,28 +571,21 @@ result Cluster_TLP_scale_prop_size6(double c,Cluster_TLP_p_scale_para2 &C){//unp
                          re.mubeta=mubeta2;
                          re.Omegais=Omegais2;
                          re.solu=mtemp;
-                         //cout<<"MSE_train is "<<cal_MSE(mtemp,C.x)<<endl;
                          re.maxdiff=maxdiff_doc;//should change here
                          re.obj=obj2;
                          return re;
                          }
                          obj_inner0=obj_inner;*/
                     }
-                    //cout<<"alpha_iter_inner="<<alpha_iter_inner<<endl;
                     ++alpha_iter_inner;
                     maxalpha_inner=absm(mualpha2-mualpha1_inner2).maxCoeff();
                     if (maxalpha_inner<1e-5/*C.Tol*/) {
-                        //cout<<"maxalpha_inner="<<maxalpha_inner<<endl;
                         break;
                     }
                 }
                 maxalpha=absm(mualpha2-mualpha1_inner).maxCoeff();
-                //E.mualpha=mualpha2;
-                //obj_inner=cal_obj_abo(C.rho,C.rho2,E,diffA,diffB,theta2,u2,theta,u,Zis,Uis);
-                //cout<<"After change alpha, obj_inner="<<obj_inner<<endl;
                 
                 
-                //alpha, beta finished updating, next update Omega
 #pragma omp parallel for private(btemp,alphause,movieuse,useri)
                 for (i=0; i<n; ++i) {//construct WS
                     alphause=matrix_colsub(mualpha2,C.x.user[i].item);  
@@ -657,20 +620,11 @@ result Cluster_TLP_scale_prop_size6(double c,Cluster_TLP_p_scale_para2 &C){//unp
                 }
                 maxOmega=change.maxCoeff();
                 
-                //E.mubeta=mubeta2;
-                //E.mualpha=mualpha2;
-                //E.Omegais=Omegais2;
-                //obj_inner=cal_obj_abo(C.rho,C.rho2,E,diffA,diffB,theta2,u2,theta,u,Zis,Uis);
-                //cout<<"After change alpha, beta, Omega, obj_inner="<<obj_inner<<endl;
-                //cout<<"Omega maximum change is at Omegai "<<pos<<endl;
-                //cout<<"maxOmega="<<maxOmega<<endl;
                 maxdiff_inner=max(max(maxalpha,maxbeta),maxOmega);
                 if(maxdiff_inner<=1e-3) break;
                 ++iter_ori;
-                //cout<<"iter_ori="<<iter_ori<<", maxdiff_inner="<<maxdiff_inner<<endl;
             }
             cout<<"iter_ori="<<iter_ori<<", maxalpha="<<maxalpha<<", maxbeta="<<maxbeta<<", maxOmega="<<maxOmega<<endl;
-            //cout<<"maxdiff_inner="<<maxdiff_inner<<endl;//can show here
             change=VectorXd::Zero(theta.cols());//must define to zero, otherwise some elements are not defined.
             change2=change;
 #pragma omp parallel for private(i,j,atemp,btemp,a)
@@ -696,7 +650,6 @@ result Cluster_TLP_scale_prop_size6(double c,Cluster_TLP_p_scale_para2 &C){//unp
             maxtheta_beta=change.lpNorm<Infinity>();
             maxu_beta=change2.lpNorm<Infinity>();
             tttbeta=max(max(maxbeta,maxtheta_beta),maxu_beta);
-            //cout<<"beta maxdiff="<<tttbeta<<endl;//<<", maxbeta="<<maxbeta<<", maxtheta_beta="<<maxtheta_beta<<", maxu_beta="<<maxu_beta<<endl;
             
             change=VectorXd::Zero(theta2.cols());
             change2=change;
@@ -723,11 +676,8 @@ result Cluster_TLP_scale_prop_size6(double c,Cluster_TLP_p_scale_para2 &C){//unp
             maxu_alpha=change2.lpNorm<Infinity>();
             maxalpha=absm(mualpha2-alphapre).maxCoeff();
             tttalpha=max(max(maxalpha,maxtheta_alpha),maxu_alpha);
-            //cout<<"alpha maxdiff is "<<tttalpha<<endl;
             
-            //update Zis
             off_diff=0;
-            //diagonal elements, should also use solve21_ama
             change.resize(p);
 #pragma omp parallel for private(j,l,atemp)
             for(i=0;i<p;++i){//diagonal
@@ -773,7 +723,6 @@ result Cluster_TLP_scale_prop_size6(double c,Cluster_TLP_p_scale_para2 &C){//unp
             }
             maxZ=change.lpNorm<Infinity>();
             
-            //off-diagonal elements
             change.resize(rlv.size());
 #pragma omp parallel for private(i,j,l,ik,il,atemp,mtemp,temp)
             for (int k=0; k<rlv.size();++k) {
@@ -797,7 +746,6 @@ result Cluster_TLP_scale_prop_size6(double c,Cluster_TLP_p_scale_para2 &C){//unp
                     for (l=0; l<usersize+1; ++l) {
                         int userno=l<usersize?rlv[k].userno[l]:rlv_idle[k];
                         atemp[l]=Omegais2[userno](i,j)+Uis[userno](i,j);
-                        //cout<<"atemp[l] is "<<atemp[l]<<endl;
                         current[l]=Zis[userno](i,j);
                     }
                     atemp=solve21_ama2_ptl_prop(n-usersize,rho_Zdiag/2,1000,1e-4,atemp,cstrfdi1,cstrsdi1);
@@ -807,7 +755,6 @@ result Cluster_TLP_scale_prop_size6(double c,Cluster_TLP_p_scale_para2 &C){//unp
                         atemp[index]=ST(atemp[index],rho_Z1);//shrinkage, size constraint
                     }
                     change[k]=(atemp-current).lpNorm<Infinity>();
-                    //++pair_offdiag;
                 }
                 l=0;
                 for (int tt=0; tt<n; ++tt) {
@@ -842,21 +789,13 @@ result Cluster_TLP_scale_prop_size6(double c,Cluster_TLP_p_scale_para2 &C){//unp
             }
             maxOmega=change.maxCoeff();
             tttOmega=max(max(maxOmega,maxZ),maxU);
-            //cout<<"Omega maxdiff is "<<tttOmega<<endl;
             
             maxdiff_admm=max(max(tttbeta,tttalpha),tttOmega);
             B.alphafuse=cal_alpha_fuse_abs(trip,mualpha2,diffA);
             B.betafuse=cal_beta_fuse_abs(trin,mubeta2,diffB);
             B.Omegafusesize=cal_Omega_fusesize_abs(Omegais2,cstrfdi_diag,cstrsdi_diag,cstrfdi_offdiag,cstrsdi_offdiag,judge_diag,judge_offdiag,Osize,rlv,itemmore,itemmore_idle,rlv_idle);  
             obj_abs2=cal_doc_obj_struct_prop_abs2(c,betadoc,alphadoc,Omegaisdoc,Sis,B);
-            //cout<<"obj_abs2="<<obj_abs2<<endl;
-            //cout<<"obj inside doc is "<<obj_abs2<<", (obj_abs1-obj_abs2) in obj is "<<(obj_abs1-obj_abs2)<<endl;//each is after one admm iter, the first admm iter increases obj_abs (largely)
-            //cout<<"maxdiff_admm="<<maxdiff_admm<<endl;
             ++admm_iter;
-            //cout<<"admm iter is "<<admm_iter<<endl;
-            // if(abs(obj_abs1-obj_abs2)<2e-4&&maxdiff_admm<1e-3){//(abs(obj_abs1-obj_abs2)<1e-3&&maxdiff_admm<1e-3)||(abs(obj_abs1-obj_abs2)<5e-4&&maxdiff_admm<5e-3)
-//                 break;
-//             }
 			cout<<"admm iter is "<<admm_iter<<", doc_iter="<<doc_iter<<", obj1-obj2="<<obj_abs1-obj_abs2<<", tttalpha="<<tttalpha<<", tttbeta="<<tttbeta<<endl;
             cout<<"obj1="<<obj_abs1<<", obj2="<<obj_abs2<<endl;
             cout<<"maxbeta="<<maxbeta<<", maxtheta_beta="<<maxtheta_beta<<", maxu_beta="<<maxu_beta<<endl;
@@ -871,21 +810,10 @@ result Cluster_TLP_scale_prop_size6(double c,Cluster_TLP_p_scale_para2 &C){//unp
                 obj_abs1=obj_abs2;
             }
         }
-        //cout<<"Omegais[30].row(1)="<<Omegais2[30].row(1)<<endl;
-        //cout<<"Zis[30].row(1)="<<Zis[30].row(1)<<endl;
-        //second part
-        //rt=1;;
         cout<<"It took "<<admm_iter<<" admm_iters"<<endl;
         ++doc_iter;
         maxalpha=absm(mualpha2-alphadoc).maxCoeff();
         maxbeta=absm(mubeta2-betadoc).maxCoeff();
-        // change.resize(n);
-//         #pragma omp parallel for
-//         for (i=0; i<n; ++i) {
-//             change[i]=absm(Omegaisdoc[i]-Omegais2[i]).maxCoeff();
-//         }
-//         maxOmega=change.maxCoeff();
-//         maxdiff_doc=max(max(maxbeta,maxalpha),maxOmega);
 		alphafuse_tau=0;betafuse_tau=0;Omegasize_tau=0;Omegafuse_tau=0;
 		
         involvedB=VectorXi::Zero(n);//construct diffB and calculate betafuse_tau
@@ -1103,7 +1031,6 @@ result Cluster_TLP_scale_prop_size6(double c,Cluster_TLP_p_scale_para2 &C){//unp
           Sis,C.x.user,Omegais2); 
         tend1=time(0);
         time1=difftime(tend1,tstart1); 
-        //cout<<"here cost "<<time1<<" seconds."<<endl;
         cout<<"doc_iter="<<doc_iter<<", obj_doc2="<<obj2<<", obj_doc1="<<obj1<<", obj_doc1-obj_doc2="<<obj1-obj2<<", maxalpha="<<maxalpha<<", maxbeta="<<maxbeta<<endl;
         if (obj1-obj2<0.015){//&&doc_iter>1 change 0.01->0.05->0.1 
             break;
@@ -1119,7 +1046,6 @@ result Cluster_TLP_scale_prop_size6(double c,Cluster_TLP_p_scale_para2 &C){//unp
     re.mubeta=mubeta2;
     re.Omegais=Omegais2;
     re.solu=mtemp;
-    //cout<<"MSE_train is "<<cal_MSE(mtemp,C.x)<<endl; 
     re.maxdiff=max(maxbeta,maxalpha);//should change here  
     re.obj=obj2;
     return re;    

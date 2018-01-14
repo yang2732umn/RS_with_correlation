@@ -1,6 +1,5 @@
 #include "consider_covariance.h"
 ArrayXd Arraysign(const ArrayXd &x){
-    //not used
     int size=x.size();
     ArrayXd sign(size);
     int i;

@@ -1,7 +1,5 @@
 #include "consider_covariance.h"
 double cal_offdiff_prop(const tri &trin,const vector<MatrixXd>& Omegais){
-    //this calculates diff terms for Omega
-    //Omegais is n p*p, _prop is for version with propogation
     double temp5=0;
     int p=Omegais[1].rows();
     int n=Omegais.size();

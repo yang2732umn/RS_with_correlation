@@ -1,6 +1,5 @@
 #include "consider_covariance.h"
 double cal_likelihood_d(const dcluster_var_l1_para &C){
-    //diagonal precision matrix, each person different sigma
     int n=C.users.cols();
     int p=C.movie.cols();
     MatrixXd solu=C.users.transpose()*C.mualpha1+C.mubeta1.transpose()*C.movie;

@@ -1,5 +1,4 @@
 #include "consider_covariance.h"
-//only solve the part of Omega for l1, treat alpha and beta as fixed
 vector<MatrixXd> l1_solve_Omega(double lambda2,double lambda3,double rho2,const MatrixXd &mualpha,const MatrixXd &mubeta,const vector<rated_user>& user, 
     const vector<rated_1itemmore> &itemmore,const vector<Omega_1rlv_simple> &rlv,const vector<MatrixXd> & Sis){
     int n=mubeta.rows();
@@ -30,12 +29,10 @@ vector<MatrixXd> l1_solve_Omega(double lambda2,double lambda3,double rho2,const 
     vector<int> itemmore_idle(p),rlv_idle(rlv.size());
 #pragma omp parallel for private(j)
     for (i=0; i<p; ++i) {
-        //stl_vec_cout(itemmore[i].user);
         for (j=0; j<itemmore[i].user.size(); ++j) {
             if(j<itemmore[i].user[j]) break;
         }//result j is one user didn't rate this item
         itemmore_idle[i]=j;
-        //cout<<"itemmore_idle["<<i<<"]="<<itemmore_idle[i]<<endl;
     }
 #pragma omp parallel for private(l)
     for (i=0; i<rlv.size(); ++i) {

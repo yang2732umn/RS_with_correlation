@@ -1,8 +1,6 @@
 #include "consider_covariance.h"
 
-//also works for lambda1==lambda3
 void rule2assignlayer(int nlayer, int i,int j,int k,int l,int lam1size,int lam2size,int lam3size,const MatrixXd &betanow,const MatrixXd &alphanow ,const vector<MatrixXd> & Omegaisnow,layers &L){
-    //if i,j,k,l, nlayer=3; if i,j,k, nlayer=2
     L.mualpha.resize(nlayer);
     L.mubeta.resize(nlayer);
     L.Omegais.resize(nlayer);

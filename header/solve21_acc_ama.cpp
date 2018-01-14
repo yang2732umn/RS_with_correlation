@@ -1,13 +1,9 @@
 #include "consider_covariance.h"
 VectorXd solve21_acc_ama(const VectorXd &y,double gamma, int maxIter, double Tol)
-// use ADMM to solve min1/2||y-beta||^2+lambda\sum_{i<k}|beta_i-beta_k|  (equation 21)
-//all connected
-//for each sample yi, it's a scalar
 {
     int iter=0;
     int p=y.size();
     double maxdiff,mu=1.0/p;//mu numerator must be 1.0 rather than 1, otherwise mu=0
-    //cout<<"mu="<<mu<<endl;
     VectorXd lambda_old=VectorXd::Zero(p*(p-1)/2);
     VectorXd lambda=lambda_old;
     VectorXd S=lambda;
@@ -72,22 +68,13 @@ VectorXd solve21_acc_ama(const VectorXd &y,double gamma, int maxIter, double Tol
             }
         }
         ++iter;
-        //objF=F_gamma(y,u,gamma);
-        //objD=D_gamma(y,lambda,gamma);
         maxdiff=(up-u).lpNorm<Infinity>();//(objF-objD)/(1+0.5*(objF+objD));
-        //cout<<"objF="<<objF<<", objD="<<objD<<endl;
-        //cout<<"maxdiff of acc ama is "<<maxdiff<<endl;
         if(maxdiff<Tol) break;
     }
     if(maxdiff>Tol){
         cout<<"solve21 acc ama not converged, maxdiff is "<<maxdiff<<endl;
         cout<<"problem size is "<<p<<endl;
-        //cout<<"y="<<y.transpose()<<endl;
     }
-    //if(maxdiff<=Tol) cout<<"solve21 took "<<iter<<" iterations to converge."<<endl;
-    //cout<<"iter is "<<iter<<endl;
-    //cout<<"solve21 acc ama final obj is "<<objF<<endl;
-    //cout<<"final lambda="<<lambda.transpose()<<endl;
     return u;
 }
 

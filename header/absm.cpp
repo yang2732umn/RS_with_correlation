@@ -1,6 +1,5 @@
 #include "consider_covariance.h"
 MatrixXd absm(const MatrixXd &x){
-    //absolute value of a matrix
     int i,j;
     MatrixXd y(x.rows(),x.cols());
     for (i=0; i<x.rows(); ++i) {

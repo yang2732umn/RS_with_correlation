@@ -1,6 +1,5 @@
 #include "consider_covariance.h"
 double F_gamma_vec(const MatrixXd &y,const MatrixXd &beta,double gamma){//vec version
-    //y is a matrix with samples in columns
     int n=y.cols();// n is sample size
     double obj=0;
     for (int i=0; i<n; i++) {
