@@ -210,7 +210,7 @@ int main(){
                 tstart=time(0);
                 method="v9 2lambda1";//rule1 is with rule lam1 series, rule0 is using bestalpha and bestbeta.
                 
-                re3=Cluster_p_inADMM_scale_struct_v9_3(c,C);//不同方法最后obj差很多，可能是因为L1问题它本身nonconvex，结果都是local解
+                re3=Cluster_p_inADMM_scale_struct_v9_3(c,C);
                 tend = time(0);
                 double timecount=difftime(tend, tstart);
                 cout << "It took " << timecount << " second(s)." << endl;
