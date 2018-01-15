@@ -338,7 +338,7 @@ int main(){
         Sc(i,i)=s;
     }
     
-    get_MatrixtoData(Sc, "../simulation/rep100_prop/SampleCov.txt");//smallest eigenvalue of Sc is -2000, too small. Change Sc too much.
+    get_MatrixtoData(Sc, "../simulation/rep100_prop/SampleCov.txt");
     
     
     rec.resize(lambda1.size()*lambda2.size()*lambda3.size(),5);
@@ -411,7 +411,7 @@ int main(){
                 method="v11";//rule1 is with rule lam1 series, rule0 is using bestalpha and bestbeta.
                 if(!(i==0&&j==0&&k==0)) rule2assignstarter3(2,i,j,k,0,C.mubeta1,C.mualpha1,C.u,C.u2,C.theta,C.theta2,C.Omegais1,C.X,C.Z,C.eta,C.y,L);//define starting value
                 
-                re3=Cluster_p_inADMM_scale_struct_v12(c,C);//不同方法最后obj差很多，可能是因为L1问题它本身nonconvex，结果都是local解
+                re3=Cluster_p_inADMM_scale_struct_v12(c,C);
                 tend = time(0);
                 double timecount=difftime(tend, tstart);
                 cout << "It took " << timecount << " second(s)." << endl;
