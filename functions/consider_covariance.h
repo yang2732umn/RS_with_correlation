@@ -15,7 +15,7 @@
 #include<iomanip>
 #include <string>
 #include <vector>
-#include<math.h>//In C++, abs() and fabs() works the same, also sqrt() in math.h
+#include<math.h>
 #include <ctime>
 #include <cstdlib>
 #include<set>
@@ -23,22 +23,11 @@
 #include <algorithm>
 #include <Eigen/Dense>
 #include <Eigen/Core>
-//#include <Eigen/Eigenvalues>  //seems no effect
 #include <chrono>
 
 using namespace Eigen;
 using namespace std;
 using namespace std::chrono;
-
-/*struct Edge
- {
- int from,  weight;
- friend bool operator<(Edge a, Edge b)
- {
- return a.weight < b.weight;
- }
- };*/
-
 
 
 struct rated_user{//user are dominant
@@ -328,7 +317,6 @@ struct Cluster_TLP_p_scale_para{
     vector<MatrixXd> Omegais1;
 };
 
-//Cluster_TLP_p_scale_para_more is the same as Cluster_TLP_p_scale_para if ever used
 
 struct Cluster_TLP_p_scale_para2{
     double lambda1,lambda2,lambda3,Tol,rho,rho2,tau;
@@ -341,11 +329,6 @@ struct Cluster_TLP_p_scale_para2{
 };
 
 inline double J_tau(double x,double tau){//min(|x|,tau)
-    // double a=tau;
-//     if (abs(x)<tau) {
-//         a=abs(x);
-//     }
-	// return a;
 	return min(abs(x),tau);
 }
 
@@ -700,49 +683,6 @@ double cal_obj_beta_struct(const obj_beta_struct &A);
 //modified to l2 norm for TLP
 //user should be train.user
 
-
-
-/*double cal_obj_beta(const doc_obj_struct &B,const vector<vector<int>>&diffB,MatrixXd* theta,MatrixXd* u){
- //user should be train.user
- int n=B.users.rows();
- int p=B.movie.rows();
- MatrixXd solu=B.users*B.mualpha+B.mubeta*B.movie.transpose();
- double obj=0,temp=0;
- VectorXd resid;
- # pragma omp parallel private (resid)
- {
- # pragma omp for reduction(+:obj)
- for (int i=0; i<mubeta.rows()-1; ++i) {
- for(int j=i+1;j<mubeta.rows();++j){
- l=i*(n-(i+1)*0.5)+j-i-1;
- if(diffB[l].size()>0) obj=obj+(mubeta.row(i)-mubeta.row(j)-(*theta).col(l)+(*u).col(l)).squaredNorm();
- }
- }
- # pragma omp single
- {
- obj=obj*lambda1/(2*c4);//
- }
- 
- # pragma omp for reduction(+:temp)
- for (int i=0; i<user.size(); ++i) {
- resid.resize(user[i].item.size());
- for(int j=0;j<user[i].item.size();++j){
- resid[j]=solu(user[i].userno,user[i].item[j])-user[i].rating[j];
- }
- MatrixXd Si=resid*resid.transpose();
- MatrixXd Omegai=Omegais[i];
- if(isnan(Omegai)) {
- cout<<"NaN exists in Omegais[i]"<<endl;
- cout<<"Omegais["<<i<<"] is "<<endl;
- cout<<Omegai<<endl;
- }
- temp=temp+((Si*Omegai).trace());
- }
- }
- obj=obj+temp*0.5/c1;
- obj=obj*100;
- return obj;
- }*/
 
 
 double cal_obj_alpha_inner_struct(const obj_alpha_inner_struct &A,const vector<vector<int>>& diffA);//modified for TLP
